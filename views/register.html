@@ -1,0 +1,29 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <div class="timeline">
+    <form id="register-form" action="/register" method="post">
+      <div class="input-group">
+        <label for="register-username">이메일</label>
+        <input id="register-username" type="username" name="username"></div>
+      <!-- <div class="input-group">
+        <label for="register-nick">닉네임</label>
+        <input id="register-nick" type="text" name="nick"></div> -->
+      <div class="input-group">
+        <label for="register-password">비밀번호</label>
+        <input id="register-password" type="password" name="password">
+      </div>
+      <button id="register-btn" type="submit" class="btn">회원가입</button>
+    </form>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    window.onload = () => {
+      if (new URL(location.href).searchParams.get('error')) {
+        alert('이미 존재하는 이메일입니다.');
+      }
+    };
+  </script>
+{% endblock %}

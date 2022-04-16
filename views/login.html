@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<form action="/login" method="post">
+    <div class="container">
+        <div class="profile-wrap">
+            <div class="profile">
+            <form id="login-form" action="/login" method="post">
+                <div class="input-group">
+                    <label for="username">이메일</label>
+                    <input id="username" type="username" name="username" required autofocus>
+                </div>
+                <div class="input-group">
+                    <label for="password">비밀번호</label>
+                    <input id="password" type="password" name="password" required>
+                  </div>
+                  <a id="register" href="/register" class="btn">회원가입</a>
+                  <button id="login" type="submit" class="btn">로그인</button>      
+            </form>
+        </div>
+    </div>
+{% endblock %}
