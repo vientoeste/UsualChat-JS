@@ -42,8 +42,7 @@ const sessionMiddleware = session({
 app.use(morgan('tiny'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'uploads')));
-app.use('/gif', express.static(path.join(__dirname, 'uploads')));
-app.use('/png', express.static(path.join(__dirname, 'uploads')));
+app.use('/img', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -236,26 +235,12 @@ const upload = multer({
   //  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-app.post('/room/:id/png', upload.single('png'), async (req, res, next) => {
+app.post('/room/:id/img', upload.single('img'), async (req, res, next) => {
   try {
     const chat = await Chat.create({
       room: req.params.id,
       user: req.session.username,
-      png: req.file.filename,
-    });
-    req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
-    res.send('ok');
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-});
-app.post('/room/:id/gif', upload.single('gif'), async (req, res, next) => {
-  try {
-    const chat = await Chat.create({
-      room: req.params.id,
-      user: req.session.username,
-      gif: req.file.filename,
+      img: req.file.filename,
     });
     req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
     res.send('ok');
