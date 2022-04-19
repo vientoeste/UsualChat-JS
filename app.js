@@ -58,41 +58,38 @@ const userSchema = new mongoose.Schema({
     username: String,
     password: String
   });
+
+userSchema.plugin(passportLocalMongoose)
+
+const User = new mongoose.model('User', userSchema);
+
+passport.use(User.createStrategy());
   
-  userSchema.plugin(passportLocalMongoose)
-  
-  const User = new mongoose.model('User', userSchema);
-  
-  passport.use(User.createStrategy());
-   
-  passport.serializeUser(User.serializeUser());
-  passport.deserializeUser(User.deserializeUser());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 
 app.route('/')
-.get(async (req, res, next) => {
-  if(req.isUnauthenticated()){
-    res.redirect('login');
-  } else {
-  try {
-    const rooms = await Room.find({});
-    res.render('main', { rooms, title: 'UsualChat' });
-  } catch (error) {
-    console.error(error);
-    next(error);
+  .get(async (req, res, next) => {
+    if(req.isUnauthenticated()){
+      res.redirect('login');
+    } else {
+    try {
+      const rooms = await Room.find({});
+      res.render('main', { rooms, title: 'UsualChat' });
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
   }
-}
-});
+  });
 
 app.route('/register')
-  .get((req, res) => {
-    res.render('register')
-  })
   .post((req, res) => {
     User.register({username: req.body.username}, req.body.password, (err, newUser) => {
       if (err) {
         console.log(err);
-        res.redirect('/register');
+        res.redirect('/login');
       } else {
         passport.authenticate('local') (req, res, () => {
           req.session.username = req.body.username;
@@ -229,7 +226,7 @@ const upload = multer({
       done(null, path.basename(file.originalname, ext) + Date.now() + ext);
     },
   }),
-  limits: { fileSize: 5 * 1024 * 1024 },
+//  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 app.post('/room/:id/png', upload.single('png'), async (req, res, next) => {
