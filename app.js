@@ -22,7 +22,7 @@ const Chat = require('./schemas/chat');
 const app = express();
 
 app.set('port', process.env.PORT || 3001);
-app.set('view engine', 'html');
+app.set('view engine', 'njk');
 
 nunjucks.configure('views', {
   express: app,
