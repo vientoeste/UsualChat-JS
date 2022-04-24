@@ -43,6 +43,7 @@ app.use(morgan('tiny'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'uploads')));
 app.use('/img', express.static(path.join(__dirname, 'uploads')));
+app.use('/file', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -226,13 +227,11 @@ const upload = multer({
       done(null, 'uploads/');
     },
     filename(req, file, done) {
-      //extname은 경로의 마지막 부분의 문자열에서 마지막 '.'에서부터 경로의 확장자를 반환한다.
-      //ext는 확장자, basename은 파일이름을 출력하는데 옵션값(ext)를 주면 ext 제거할 수 있다
       const ext = path.extname(file.originalname);
       done(null, path.basename(file.originalname, ext) + Date.now() + ext);
     },
   }),
-  //  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 * 1024 },
 });
 
 app.post('/room/:id/img', upload.single('img'), async (req, res, next) => {
@@ -249,6 +248,21 @@ app.post('/room/:id/img', upload.single('img'), async (req, res, next) => {
     next(error);
   }
 });
+
+app.post('/room/:id/file', upload.single('another'), async (req, res, next) => {
+  try {
+    const chat = await Chat.create({
+      room: req.params.id,
+      user: req.session.username,
+      file: req.file.filename,
+    })
+    req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
+    res.send('ok');
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+})
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);

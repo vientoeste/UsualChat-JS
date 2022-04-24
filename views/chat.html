@@ -5,11 +5,11 @@
   <legend>채팅 내용</legend>
   <div id="chat-list">
     {% for chat in chats %} {% if chat.user === user %}
-    <div class="mine" style="color: {{chat.user}}">
+    <div class="mine">
       <div>{{chat.user}}</div>
-      {% if chat.img %}}
+      {% if chat.img %}
       <img src="/img/{{chat.img}}" />
-      %else if chat.file %
+      {% elif chat.file %}
       <img src="/file/{{chat.file}}" />
       {% else %}
       <div>{{chat.chat}}</div>
@@ -20,11 +20,11 @@
       <div>{{chat.chat}}</div>
     </div>
     {% else %}
-    <div class="other" style="color: {{chat.user}}">
+    <div class="other">
       <div>{{chat.user}}</div>
-      {% if chat.img %}}
+      {% if chat.img %}
       <img src="/img/{{chat.img}}" />
-      %else if chat.file %
+      {% elif chat.file %}
       <img src="/file/{{chat.file}}" />
       {% else %}
       <div>{{chat.chat}}</div>
@@ -48,6 +48,7 @@
   const socket = io.connect('http://localhost:3001/chat', {
     path: '/socket.io',
   });
+
   socket.on('register', (data) => {
     const div = document.createElement('div');
     div.classList.add('system');
@@ -56,6 +57,7 @@
     div.appendChild(chat);
     document.querySelector('#chat-list').appendChild(div);
   });
+
   socket.on('exit', (data) => {
     const div = document.createElement('div');
     div.classList.add('system');
@@ -64,11 +66,11 @@
     div.appendChild(chat);
     document.querySelector('#chat-list').appendChild(div);
   });
+
   socket.on('chat', (data) => {
-    //createElement은 괄호 안에 있는 요소를 만든다는 의미
     const div = document.createElement('div');
     const img = document.createElement('img');
-    //const png = document.createElement('img');
+    const file = document.createElement('file');
 
     if (data.user === '{{user}}') {
       div.classList.add('mine');
@@ -85,13 +87,13 @@
     } else if (data.img) {
       img.src = '/img/' + data.img;
       div.appendChild(img);
-    } else {
-      // png.src = '/png/' + data.png;
-      // div.appendChild(png);
+    } else if (data.file) {
+      file.src = '/file/' + data.file;
+      div.appendChild(file);
     }
-    div.style.color = data.user;
     document.querySelector('#chat-list').appendChild(div);
   });
+
   document.querySelector('#chat-form').addEventListener('submit', (e) => {
     e.preventDefault();
     if (e.target.chat.value) {
@@ -107,14 +109,12 @@
         });
     }
   });
-  //doucument.querySelector('#var') -> 이것은 var 아이디를 가진 요소를 찾음
-  //위에 있는 input에 'change'이벤트가 발생(파일 선택)되면 아래 함수 실행
+
   document.querySelector('#img').addEventListener('change', (e) => {
     console.log(e.target.files);
     const formData = new FormData();
     formData.append('img', e.target.files[0]);
     axios
-      //아래의 .post를 통해 app.js의 app.post('room/:id/img'~) 가 실행됨
       .post('/room/{{room._id}}/img', formData)
       .then(() => {
         e.target.file = null;
@@ -124,18 +124,18 @@
       });
   });
 
-  // document.querySelector('#png').addEventListener('change', (e) => {
-  //   console.log(e.target.files);
-  //   const formData = new FormData();
-  //   formData.append('png', e.target.files[0]);
-  //   axios
-  //     .post('/room/{{room._id}}/png', formData)
-  //     .then(() => {
-  //       e.target.file = null;
-  //     })
-  //     .catch((err) => {
-  //       console.error(err);
-  //     });
-  // });
+  document.querySelector('#file').addEventListener('change', (e) => {
+    console.log(e.target.files);
+    const formData = new FormData();
+    formData.append('img', e.target.files[0]);
+    axios
+      .post('/room/{{room._id}}/file', formData)
+      .then(() => {
+        e.target.file = null;
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  });
 </script>
 {% endblock %}

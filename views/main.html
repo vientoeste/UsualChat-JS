@@ -19,7 +19,7 @@
         <td>{{room.title}}</td>
         <td>{{'비밀방' if room.password else '공개방'}}</td>
         <td>{{room.max}}</td>
-        <td style="color: {{room.owner}}">{{room.owner}}</td>
+        <td>{{room.owner}}</td>
         <td>
           <button
             data-password="{{'true' if room.password else 'false'}}"
@@ -53,7 +53,6 @@
     td.textContent = data.max;
     tr.appendChild(td);
     td = document.createElement('td');
-    td.style.color = data.owner;
     td.textContent = data.owner;
     tr.appendChild(td);
     td = document.createElement('td');
