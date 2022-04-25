@@ -22,7 +22,7 @@ const Chat = require('./schemas/chat');
 const app = express();
 
 app.set('port', process.env.PORT || 3001);
-app.set('view engine', 'html');
+app.set('view engine', 'njk');
 
 nunjucks.configure('views', {
   express: app,
@@ -31,8 +31,8 @@ nunjucks.configure('views', {
 
 const sessionMiddleware = session({
   resave: false,
-  saveUninitialized: false, 
-  secret: process.env.COOKIE_SECRET, 
+  saveUninitialized: false,
+  secret: process.env.COOKIE_SECRET,
   cookie: {
     httpOnly: true,
     secure: false,
@@ -42,11 +42,11 @@ const sessionMiddleware = session({
 app.use(morgan('tiny'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'uploads')));
-app.use("/gif", express.static(path.join(__dirname, "uploads")));
-app.use("/png", express.static(path.join(__dirname, "uploads")));
+app.use('/img', express.static(path.join(__dirname, 'uploads')));
+app.use('/file', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false })); 
-app.use(cookieParser(process.env.COOKIE_SECRET)); 
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(sessionMiddleware);
 
 app.use(passport.initialize());
@@ -55,25 +55,23 @@ app.use(passport.session());
 connect();
 
 const userSchema = new mongoose.Schema({
-    username: String,
-    password: String
-  });
+  username: String,
+  password: String,
+});
 
-userSchema.plugin(passportLocalMongoose)
+userSchema.plugin(passportLocalMongoose);
 
 const User = new mongoose.model('User', userSchema);
 
 passport.use(User.createStrategy());
-  
+
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-
-app.route('/')
-  .get(async (req, res, next) => {
-    if(req.isUnauthenticated()){
-      res.redirect('login');
-    } else {
+app.route('/').get(async (req, res, next) => {
+  if (req.isUnauthenticated()) {
+    res.redirect('login');
+  } else {
     try {
       const rooms = await Room.find({});
       res.render('main', { rooms, title: 'UsualChat' });
@@ -82,52 +80,55 @@ app.route('/')
       next(error);
     }
   }
-  });
+});
 
-app.route('/register')
-  .post((req, res) => {
-    User.register({username: req.body.username}, req.body.password, (err, newUser) => {
+app.route('/register').post((req, res) => {
+  User.register(
+    { username: req.body.username },
+    req.body.password,
+    (err, newUser) => {
       if (err) {
         console.log(err);
         res.redirect('/login');
       } else {
-        passport.authenticate('local') (req, res, () => {
+        passport.authenticate('local')(req, res, () => {
           req.session.username = req.body.username;
-          res.redirect('/')
-        })
+          res.redirect('/');
+        });
       }
-    })
-  });
-app.route('/login')
+    }
+  );
+});
+app
+  .route('/login')
   .get((req, res) => {
-    res.render('login')
+    res.render('login');
   })
   .post((req, res) => {
     const user = new User({
       username: req.body.username,
-      password: req.body.password
+      password: req.body.password,
     });
 
-    req.login(user, err => {
+    req.login(user, (err) => {
       if (err) {
         console.log(err);
       } else {
-        passport.authenticate('local') (req, res, () => {
-          req.session.username = req.body.username;          
-          res.redirect('/');        
-        }
-        )
+        passport.authenticate('local')(req, res, () => {
+          req.session.username = req.body.username;
+          res.redirect('/');
+        });
       }
-    })
+    });
   });
 
-app.route('/logout')
-  .get((req, res) => {
-    req.logout();
-    res.redirect('/');
-  });
+app.route('/logout').get((req, res) => {
+  req.logout();
+  res.redirect('/');
+});
 
-app.route('/room')
+app
+  .route('/room')
   .get((req, res) => {
     res.render('room', { title: 'UsualChat 채팅방 생성' });
   })
@@ -148,7 +149,8 @@ app.route('/room')
     }
   });
 
-app.route('/room/:id')
+app
+  .route('/room/:id')
   .get(async (req, res, next) => {
     try {
       const room = await Room.findOne({ _id: req.params.id });
@@ -160,7 +162,11 @@ app.route('/room/:id')
         return res.redirect('/?error=비밀번호가 틀렸습니다.');
       }
       const { rooms } = io.of('/chat').adapter;
-      if (rooms && rooms[req.params.id] && room.max <= rooms[req.params.id].length) {
+      if (
+        rooms &&
+        rooms[req.params.id] &&
+        room.max <= rooms[req.params.id].length
+      ) {
         return res.redirect('/?error=허용 인원이 초과하였습니다.');
       }
       const chats = await Chat.find({ room: room._id }).sort('createdAt');
@@ -176,38 +182,37 @@ app.route('/room/:id')
     }
   })
   .delete(async (req, res, next) => {
-    if(Room.owner == req.username) {
-    try {
-      await Room.remove({ _id: req.params.id });
-      await Chat.remove({ room: req.params.id });
-      res.send('ok');
-      setTimeout(() => {
-        req.app.get('io').of('/room').emit('removeRoom', req.params.id);
-      }, 100);
-    } catch (error) {
-      console.error(error);
-      next(error);
+    if (Room.owner == req.username) {
+      try {
+        await Room.remove({ _id: req.params.id });
+        await Chat.remove({ room: req.params.id });
+        res.send('ok');
+        setTimeout(() => {
+          req.app.get('io').of('/room').emit('removeRoom', req.params.id);
+        }, 100);
+      } catch (error) {
+        console.error(error);
+        next(error);
+      }
+    } else {
+      alert('방장이 아닙니다.');
     }
-  } else {
-    alert('방장이 아닙니다.');
+  });
+
+app.route('/room/:id/chat').post(async (req, res, next) => {
+  try {
+    const chat = await Chat.create({
+      room: req.params.id,
+      user: req.session.username,
+      chat: req.body.chat,
+    });
+    req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
+    res.send('ok');
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
-  });
-  
-app.route('/room/:id/chat')
-  .post(async (req, res, next) => {
-    try {
-      const chat = await Chat.create({
-        room: req.params.id,
-        user: req.session.username,
-        chat: req.body.chat,
-      });
-      req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
-      res.send('ok');
-    } catch (error) {
-      console.error(error);
-      next(error);
-    }
-  });
+});
 
 /*--업로드 구현부--*/
 try {
@@ -226,15 +231,15 @@ const upload = multer({
       done(null, path.basename(file.originalname, ext) + Date.now() + ext);
     },
   }),
-//  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 * 1024 },
 });
 
-app.post('/room/:id/png', upload.single('png'), async (req, res, next) => {
+app.post('/room/:id/img', upload.single('img'), async (req, res, next) => {
   try {
     const chat = await Chat.create({
       room: req.params.id,
       user: req.session.username,
-      png: req.file.filename,
+      img: req.file.filename,
     });
     req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
     res.send('ok');
@@ -243,20 +248,21 @@ app.post('/room/:id/png', upload.single('png'), async (req, res, next) => {
     next(error);
   }
 });
-app.post('/room/:id/gif', upload.single('gif'), async (req, res, next) => {
+
+app.post('/room/:id/file', upload.single('another'), async (req, res, next) => {
   try {
     const chat = await Chat.create({
       room: req.params.id,
       user: req.session.username,
-      gif: req.file.filename,
-    });
+      file: req.file.filename,
+    })
     req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
     res.send('ok');
   } catch (error) {
     console.error(error);
     next(error);
   }
-});
+})
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
