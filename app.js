@@ -190,6 +190,7 @@ app
         setTimeout(() => {
           req.app.get('io').of('/room').emit('removeRoom', req.params.id);
         }, 100);
+        //연결된 모든 사용자 연결 해제 필요
       } catch (error) {
         console.error(error);
         next(error);
@@ -229,6 +230,7 @@ const upload = multer({
     filename(req, file, done) {
       const ext = path.extname(file.originalname);
       done(null, path.basename(file.originalname, ext) + Date.now() + ext);
+      console.log(`${path.basename(file.originalname, ext)} / ${Date.now()} / ${ext}`);
     },
   }),
   limits: { fileSize: 5 * 1024 * 1024 * 1024 },
