@@ -16,7 +16,8 @@
       <div class="mine">
         <div>{{chat.user}}</div>
         {% if chat.img %}
-          <img src="/img/{{chat.img}}" />
+          <a href="/img/{{chat.img}}" download>다운로드</a>
+          <img src="/img/{{chat.img}}" style="cursor:pointer" onclick="window.open('/img/{{chat.img}}', '이미지', 'scrollbars=yes, width=417, height=385, top=10, left=20');"/>
         {% elif chat.file %}
           <img src="/file/{{chat.file}}" />
         {% else %}
@@ -31,7 +32,8 @@
       <div class="other">
         <div>{{chat.user}}</div>
         {% if chat.img %}
-          <img src="/img/{{chat.img}}" />
+          <img src="/img/{{chat.img}}" style="cursor:pointer" onclick="window.open('/img/{{chat.img}}', '이미지', 'scrollbars=yes, width=417, height=385, top=10, left=20');"/>
+          <a href="/img/{{chat.img}}" download>다운로드</a>
         {% elif chat.file %}
           <img src="/file/{{chat.file}}" />
         {% else %}
