@@ -1,36 +1,47 @@
-{% extends 'layout.html' %} {% block content %}
+{% extends 'layout.html' %} 
+{% block content %}
 <h1>{{title}}</h1>
-<a href="/" id="exit-btn">방 나가기</a>
+<div align="right"> <a href="/" type="button" id="exit-btn">방 나가기</a>
+{% if user === room.owner %}
+  <form action="/" id="delete-room" method="delete">
+    <button type="submit">방 제거</button>
+  </form>
+{% endif %}
+</div>
 <fieldset>
   <legend>채팅 내용</legend>
   <div id="chat-list">
-    {% for chat in chats %} {% if chat.user === user %}
-    <div class="mine">
-      <div>{{chat.user}}</div>
-      {% if chat.img %}
-      <img src="/img/{{chat.img}}" />
-      {% elif chat.file %}
-      <img src="/file/{{chat.file}}" />
+    {% for chat in chats %} 
+      {% if chat.user === user %}
+      <div class="mine">
+        <div>{{chat.user}}</div>
+        {% if chat.img %}
+          <a href="/img/{{chat.img}}" download>다운로드</a>
+          <img src="/img/{{chat.img}}" style="cursor:pointer" onclick="window.open('/img/{{chat.img}}', '이미지', 'scrollbars=yes, width=417, height=385, top=10, left=20');"/>
+        {% elif chat.file %}
+          <img src="/file/{{chat.file}}" />
+        {% else %}
+          <div>{{chat.chat}}</div>
+        {% endif %}
+      </div>
+      {% elif chat.user === 'system' %}
+        <div class="system">
+          <div>{{chat.chat}}</div>
+        </div>
       {% else %}
-      <div>{{chat.chat}}</div>
-      {% endif %}
-    </div>
-    {% elif chat.user === 'system' %}
-    <div class="system">
-      <div>{{chat.chat}}</div>
-    </div>
-    {% else %}
-    <div class="other">
-      <div>{{chat.user}}</div>
-      {% if chat.img %}
-      <img src="/img/{{chat.img}}" />
-      {% elif chat.file %}
-      <img src="/file/{{chat.file}}" />
-      {% else %}
-      <div>{{chat.chat}}</div>
-      {% endif %}
-    </div>
-    {% endif %} {% endfor %}
+      <div class="other">
+        <div>{{chat.user}}</div>
+        {% if chat.img %}
+          <img src="/img/{{chat.img}}" style="cursor:pointer" onclick="window.open('/img/{{chat.img}}', '이미지', 'scrollbars=yes, width=417, height=385, top=10, left=20');"/>
+          <a href="/img/{{chat.img}}" download>다운로드</a>
+        {% elif chat.file %}
+          <img src="/file/{{chat.file}}" />
+        {% else %}
+          <div>{{chat.chat}}</div>
+        {% endif %}
+      </div>
+      {% endif %} 
+    {% endfor %}
   </div>
 </fieldset>
 <form action="/chat" id="chat-form" method="post" enctype="multipart/form-data">
@@ -39,9 +50,7 @@
   <input type="text" id="chat" name="chat" />
   <button type="submit">전송</button>
 </form>
-<form action="/" id="delete-room" method="delete">
-  <button type="submit">방 제거</button>
-</form>
+
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -127,7 +136,7 @@
   document.querySelector('#file').addEventListener('change', (e) => {
     console.log(e.target.files);
     const formData = new FormData();
-    formData.append('img', e.target.files[0]);
+    formData.append('file', e.target.files[0]);
     axios
       .post('/room/{{room._id}}/file', formData)
       .then(() => {
