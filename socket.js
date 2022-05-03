@@ -33,16 +33,10 @@ module.exports = (server, app, sessionMiddleware) => {
       user: 'system',
       chat: `${req.session.username}님이 입장하셨습니다.`,
     });
-    
-    socket.on('disconnect', () => {
-      console.log('chat 네임스페이스 접속 해제');
-      socket.leave(roomId);
-      const currentRoom = socket.adapter.rooms[roomId];
-      const userCount = currentRoom ? currentRoom.length : 0;
-      if (userCount === 0) { // 유저가 0명이면 방 삭제
-        const signedCookie = cookie.sign(req.signedCookies['connect.sid'], process.env.COOKIE_SECRET);
-        const connectSID = `${signedCookie}`;
-        axios.delete(`http://localhost:3001/room/${roomId}`, {
+
+    const connectSID = `${cookie.sign(req.signedCookies['connect.sid'], process.env.COOKIE_SECRET)}`;
+    socket.on('deleteroom', () => {
+      axios.delete(`http://localhost:3001/room/${roomId}`, {
           headers: {
             Cookie: `connect.sid=s%3A${connectSID}`
           } 
@@ -53,12 +47,15 @@ module.exports = (server, app, sessionMiddleware) => {
           .catch((error) => {
             console.error(error);
           });
-      } else {
-        socket.to(roomId).emit('exit', {
-          user: 'system',
-          chat: `${req.session.username}님이 퇴장하셨습니다.`,
-        });
-      }
+    })
+
+    socket.on('disconnect', () => {
+      console.log('chat 네임스페이스 접속 해제');
+      socket.leave(roomId);
+      socket.to(roomId).emit('exit', {
+        user: 'system',
+        chat: `${req.session.username}님이 퇴장하셨습니다.`,
+      });
     });
     socket.on('chat', (data) => {
       socket.to(data.room).emit(data);
