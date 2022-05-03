@@ -9,3 +9,5 @@ uploads/
 
 ##자동화 관련 파일
 launchServer.bat
+mongo.bat
+mongod.bat
