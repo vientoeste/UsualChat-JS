@@ -23,12 +23,12 @@ mongo`
     fs.appendFile('mongod.bat', string1, err => {
         if (err)
             throw err;
-        console.log(`mongod complete`);
+        console.log(`mongod complete; --auth needed`);
     })
     fs.appendFile('mongo.bat', string2, err => {
         if (err)
             throw err;
-        console.log(`mongo complete`);
+        console.log(`mongo complete; --auth & id/pw needed`);
     })
 }
 // const rl = readline.createInterface({
@@ -46,4 +46,10 @@ mongo`
 // rl.on('close', () => {
 //     process.exit();
 // })
+fs.appendFile('.env', `COOKIE_SECRET=usualchat
+MONGO_ID=
+MONGO_PASSWORD=`, err => {
+    if(err) throw(err);
+    console.log(`dotenv complete; Please add mongodb\`s ID/PW to start the server`);
+});
 mongo('5.0')
