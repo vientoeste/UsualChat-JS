@@ -6,3 +6,6 @@ node_modules/
 
 ## gif 파일 관리 폴더
 uploads/
+
+##자동화 관련 파일
+launchServer.bat
