@@ -19,6 +19,7 @@ module.exports = (server, app, sessionMiddleware) => {
     socket.on('disconnect', () => {
       console.log('room 네임스페이스 접속 해제');
     });
+    
   });
 
   chat.on('connection', (socket) => {
@@ -42,11 +43,14 @@ module.exports = (server, app, sessionMiddleware) => {
           } 
         })
           .then(() => {
-            console.log('방 제거 요청 성공');
+            console.log('방 제거 요청 성공');          
+            socket.broadcast.emit('reload');
+          console.log('메인 화면으로 사용자 보냄');
           })
           .catch((error) => {
             console.error(error);
           });
+
     })
 
     socket.on('disconnect', () => {
@@ -57,6 +61,12 @@ module.exports = (server, app, sessionMiddleware) => {
         chat: `${req.session.username}님이 퇴장하셨습니다.`,
       });
     });
+
+    // socket.on('roomdeleted', () => {
+    //   socket.broadcast.emit('reload');
+    //   console.log('메인 화면으로 보냄')
+    // });
+
     socket.on('chat', (data) => {
       socket.to(data.room).emit(data);
     });

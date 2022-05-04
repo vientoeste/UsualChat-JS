@@ -182,7 +182,8 @@ app
       return next(error);
     }
   })
-app.route('/room/:id/delete').get(async (req, res, next) => {
+app.route('/room/:id/delete')
+  .get(async (req, res, next) => {
     if (Room.owner == req.username) {
       try {
         await Room.remove({ _id: req.params.id });

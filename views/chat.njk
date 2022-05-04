@@ -68,7 +68,7 @@
   });
 
   socket.on('deleteroom', () => {
-    
+        location.reload();
   })
 
   socket.on('exit', (data) => {
@@ -79,6 +79,10 @@
     div.appendChild(chat);
     document.querySelector('#chat-list').appendChild(div);
   });
+
+  socket.on('reload', () => {
+    location.reload();
+  })
 
   socket.on('chat', (data) => {
     const div = document.createElement('div');

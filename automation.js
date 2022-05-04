@@ -1,9 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
+// const readline = require('readline');
 
 function nodemonapp() {
-    //Windows 환경에서 nodemon으로 서버 실행하는 batch파일 생성
     let string =
 `cd ${path.dirname(__filename)}
 nodemon app`;
@@ -12,11 +11,11 @@ nodemon app`;
             console.log(`launchServer.bat already exists`)
         } else {
             fs.appendFile('launchServer.bat', string, err => {
-            if(err) throw err;
-            console.log(`nodemon app complete`);
-        })
-    }
-})
+                if(err) throw err;
+                console.log(`nodemon app complete`);
+            })
+        }
+    })
 }
 nodemonapp();
 
@@ -25,28 +24,26 @@ function mongo(ver) {
 mongod`
     let string2 = `cd C:\\program files\\mongodb\\server\\${ver}\\bin
 mongo`
-fs.exists('mongod.bat', (e) => {
-    if(e) {
-        console.log(`mongod.bat already exists`)
-    } else {
-        fs.appendFile('mongod.bat', string1, err => {
-            if (err)
-                throw err;
-            console.log(`mongod complete; --auth needed`);
-        })
-    }
-})
-fs.exists('mongo.bat', (e) => {
-    if(e) {
-        console.log(`mongo.bat already exists`)
-    } else {
-        fs.appendFile('mongo.bat', string2, err => {
-            if (err)
-                throw err;
-            console.log(`mongo complete; --auth & id/pw needed`);
-        })
-    }
-})
+    fs.exists('mongod.bat', (e) => {
+        if(e) {
+            console.log(`mongod.bat already exists`)
+        } else {
+            fs.appendFile('mongod.bat', string1, err => {
+                if (err) throw err;
+                console.log(`mongod complete; --auth needed`);
+            })
+        }
+    })
+    fs.exists('mongo.bat', (e) => {
+        if(e) {
+            console.log(`mongo.bat already exists`)
+        } else {
+            fs.appendFile('mongo.bat', string2, err => {
+                if (err) throw err;
+                console.log(`mongo complete; --auth & id/pw needed`);
+            })
+        }
+    })
 }
 
 // const rl = readline.createInterface({
@@ -72,8 +69,8 @@ fs.exists('.env', (e) => {
         fs.appendFile('.env', `COOKIE_SECRET=usualchat
 MONGO_ID=
 MONGO_PASSWORD=`, err => {
-        if(err) throw(err)
-        console.log(`dotenv complete; Please add mongodb\`s ID/PW to start the server`);
+            if(err) throw(err)
+            console.log(`dotenv complete; Please add mongodb\`s ID/PW to start the server`);
         })
     }
 })

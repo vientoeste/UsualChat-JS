@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.2",
-    "chokidar": "^3.5.3",
     "cookie-parser": "^1.4.6",
     "cookie-signature": "^1.2.0",
     "dotenv": "^8.6.0",
@@ -23,8 +22,7 @@
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^7.0.0",
-    "socket.io": "^2.4.1",
-    "ws": "^7.5.7"
+    "socket.io": "^2.4.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
