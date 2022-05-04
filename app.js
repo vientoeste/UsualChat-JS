@@ -18,6 +18,7 @@ const connect = require('./schemas');
 
 const Room = require('./schemas/room');
 const Chat = require('./schemas/chat');
+const room = require('./schemas/room');
 
 const app = express();
 
@@ -181,22 +182,21 @@ app
       return next(error);
     }
   })
-  .delete(async (req, res, next) => {
+app.route('/room/:id/delete').get(async (req, res, next) => {
     if (Room.owner == req.username) {
       try {
         await Room.remove({ _id: req.params.id });
         await Chat.remove({ room: req.params.id });
-        res.send('ok');
+
         setTimeout(() => {
-          req.app.get('io').of('/room').emit('removeRoom', req.params.id);
+          req.app.get('io').of('/room').emit('deleteroom', req.params.id);
         }, 100);
+        res.redirect('/');
         //연결된 모든 사용자 연결 해제 필요
       } catch (error) {
         console.error(error);
         next(error);
       }
-    } else {
-      alert('방장이 아닙니다.');
     }
   });
 

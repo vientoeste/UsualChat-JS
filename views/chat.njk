@@ -3,7 +3,7 @@
 <h1>{{title}}</h1>
 <div align="right"> <a href="/" type="button" id="exit-btn">방 나가기</a>
 {% if user === room.owner %}
-  <form action="/" id="delete-room" method="delete">
+  <form action="/room/{{room._id}}/delete">
     <button type="submit">방 제거</button>
   </form>
 {% endif %}
@@ -66,6 +66,10 @@
     div.appendChild(chat);
     document.querySelector('#chat-list').appendChild(div);
   });
+
+  socket.on('deleteroom', () => {
+    
+  })
 
   socket.on('exit', (data) => {
     const div = document.createElement('div');

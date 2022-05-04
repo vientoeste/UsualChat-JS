@@ -36,7 +36,7 @@ module.exports = (server, app, sessionMiddleware) => {
 
     const connectSID = `${cookie.sign(req.signedCookies['connect.sid'], process.env.COOKIE_SECRET)}`;
     socket.on('deleteroom', () => {
-      axios.delete(`http://localhost:3001/room/${roomId}`, {
+      axios.get(`http://localhost:3001/room/${roomId}/delete`, {
           headers: {
             Cookie: `connect.sid=s%3A${connectSID}`
           } 
