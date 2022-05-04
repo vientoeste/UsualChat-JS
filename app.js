@@ -194,6 +194,7 @@ app.route('/room/:id/delete')
         }, 100);
         res.redirect('/');
         //연결된 모든 사용자 연결 해제 필요
+        
       } catch (error) {
         console.error(error);
         next(error);
