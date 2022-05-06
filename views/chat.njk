@@ -3,7 +3,7 @@
 <h1>{{title}}</h1>
 <div align="right"> <a href="/" type="button" id="exit-btn">방 나가기</a>
 {% if user === room.owner %}
-  <form action="/room/{{room._id}}/delete">
+  <form action="/room/{{room._id}}" id="removeroom">
     <button type="submit">방 제거</button>
   </form>
 {% endif %}
@@ -68,7 +68,7 @@
   });
 
   socket.on('reload', () => {
-        location.reload();
+    location.reload();
   })
 
   socket.on('exit', (data) => {
@@ -105,6 +105,10 @@
       div.appendChild(file);
     }
     document.querySelector('#chat-list').appendChild(div);
+  });
+  
+  document.querySelector('#removeroom').addEventListener('submit', () => {
+    axios.delete('/room/{{room._id}}');
   });
 
   document.querySelector('#chat-form').addEventListener('submit', (e) => {

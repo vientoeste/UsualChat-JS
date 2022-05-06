@@ -182,17 +182,9 @@ app
       return next(error);
     }
   })
-  // .delete(async (req, res, next) => {
-  //   if(Room.owner == req.username) {
-  //     try {
-  //       req.app.get('io').of('/room').emit('deleteroom', req.params.id);
-  //     }
-  //   }
-  // })
-app.route('/room/:id/delete')
-  .get(async (req, res, next) => {
-    // console.log(Room.find({}))
-    // if (Room.owner === req.session.username) {
+  .delete(async (req, res, next) => {
+    let roomid = await Room.findById({ _id: req.params.id });
+    if (roomid.owner === req.session.username) {
       try {        
         const io = req.app.get('io');
         io.of('/chat').emit('reload');
@@ -206,10 +198,8 @@ app.route('/room/:id/delete')
         console.error(error);
         next(error);
       }
-    // } else {
-      // res.redirect('/room/:id')
-    // }
-  });
+    }
+  })
 
 app.route('/room/:id/chat').post(async (req, res, next) => {
   try {

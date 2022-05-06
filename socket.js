@@ -34,26 +34,7 @@ module.exports = (server, app, sessionMiddleware) => {
       chat: `${req.session.username}님이 입장하셨습니다.`,
     });
 
-    // const connectSID = `${cookie.sign(req.signedCookies['connect.sid'], process.env.COOKIE_SECRET)}`;
-    socket.on('deleteroom', () => { //when it raises?
-            socket.broadcast.emit('reload');
-            console.log('메인 화면으로 사용자 보냄');      
-        //     axios.get(`http://localhost:3001/room/${roomId}/delete`, {
-        //   headers: {
-        //     Cookie: `connect.sid=s%3A${connectSID}`
-        //   } 
-        // })
-        //   .then(() => {
-            console.log(`방 ${roomId} 제거 요청 성공`);          
-
-          // })
-          // .catch((error) => {
-          //   console.error(error);
-          // });
-
-    })
-
-    socket.on('disconnect', () => {``
+    socket.on('disconnect', () => {
       console.log('chat 네임스페이스 접속 해제');
       socket.leave(roomId);
       socket.to(roomId).emit('exit', {
@@ -62,14 +43,8 @@ module.exports = (server, app, sessionMiddleware) => {
       });
     });
 
-    // socket.on('roomdeleted', () => {
-    //   socket.broadcast.emit('reload');
-    //   console.log('메인 화면으로 보냄')
-    // });
-
     socket.on('chat', (data) => {
       socket.to(data.room).emit(data);
-      console.log('socket-chat event 생성')
     });
   });
 };
