@@ -40,7 +40,7 @@ const sessionMiddleware = session({
   },
 });
 
-app.use(morgan('tiny'));
+app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'uploads')));
 app.use('/img', express.static(path.join(__dirname, 'uploads')));
@@ -182,24 +182,33 @@ app
       return next(error);
     }
   })
+  // .delete(async (req, res, next) => {
+  //   if(Room.owner == req.username) {
+  //     try {
+  //       req.app.get('io').of('/room').emit('deleteroom', req.params.id);
+  //     }
+  //   }
+  // })
 app.route('/room/:id/delete')
   .get(async (req, res, next) => {
-    if (Room.owner == req.username) {
-      try {
+    // console.log(Room.find({}))
+    // if (Room.owner === req.session.username) {
+      try {        
+        const io = req.app.get('io');
+        io.of('/chat').emit('reload');
+        setTimeout(() => {
+          req.app.get('io').of('/room').emit('removeRoom', req.params.id);
+        }, 100);
         await Room.remove({ _id: req.params.id });
         await Chat.remove({ room: req.params.id });
-
-        setTimeout(() => {
-          req.app.get('io').of('/room').emit('deleteroom', req.params.id);
-        }, 100);
         res.redirect('/');
-        //연결된 모든 사용자 연결 해제 필요
-        
       } catch (error) {
         console.error(error);
         next(error);
       }
-    }
+    // } else {
+      // res.redirect('/room/:id')
+    // }
   });
 
 app.route('/room/:id/chat').post(async (req, res, next) => {
