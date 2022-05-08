@@ -31,3 +31,9 @@ table, table th, table td {
   border: 1px solid silver;
   border-collapse: collapse;
 }
+.friend {
+  display: none;
+}
+#friendBtn:checked ~ .friend {
+  display: block
+}

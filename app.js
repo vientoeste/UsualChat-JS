@@ -125,6 +125,7 @@ app
 
 app.route('/logout').get((req, res) => {
   req.logout();
+  req.session.destroy();
   res.redirect('/');
 });
 
@@ -157,7 +158,7 @@ app
       const room = await Room.findOne({ _id: req.params.id });
       const io = req.app.get('io');
       if (!room) {
-        return res.redirect('/?error=존재하지 않는 방입니다.');
+        return res.redirect('/');
       }
       if (room.password && room.password !== req.query.password) {
         return res.redirect('/?error=비밀번호가 틀렸습니다.');
@@ -193,7 +194,6 @@ app
         }, 100);
         await Room.remove({ _id: req.params.id });
         await Chat.remove({ room: req.params.id });
-        res.redirect('/');
       } catch (error) {
         console.error(error);
         next(error);
@@ -276,7 +276,7 @@ app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = process.env.NODE_ENV !== 'production' ? err : {};
   res.status(err.status || 500);
-  res.render('error');
+  res.render('error'); 
 });
 
 const server = app.listen(app.get('port'), () => {

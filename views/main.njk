@@ -2,9 +2,56 @@
 
 {% block content %}
 <h1>UsualChat 채팅방</h1>
-<button type="button" onclick="location.href='/logout'"> 로그아웃 </button>
-<fieldset>
-  <legend>채팅방 목록</legend>
+<h2><button type="button" onclick="location.href='/logout'" style="position:relative"> 로그아웃 </button></h2>
+<fieldset style="float: left">
+  <legend>친구</legend>
+  <table>
+    <thead>
+    <tr>
+      <th>아이디</th>
+      <th>1:1 채팅</th>
+    </tr>
+    </thead>
+    <tbody>
+
+      <tr>
+        <td>aaaaaaaaaa</td>
+        <td>
+          <button>입장</button>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+  <br>
+  <input type="checkbox" id="friendBtn" style="position: fixed; left:-9999px"><label for="friendBtn" class="friendBtn" style="cursor:pointer"><b>친구 관리</b></label>
+  <div class='friend'>
+친구 추가<br>
+<input type="text" size="15"><button>전송</button><br>
+친구 삭제<br>
+<input type="text" size="15"><button>전송</button>
+<br>친구 요청
+  <table>
+    <thead>
+      <tr>
+        <th>아이디</th>
+        <th>날짜</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr>
+        <td>aaaaaaaaaa</td>
+        <td>05/09</td>
+        <td><button>O</button><button>X</button></td>
+      </tr>
+
+    </tbody>
+    </table>
+    </div>
+</fieldset>
+<fieldset style="float: left">
+  <legend>채팅방</legend>
   <table>
     <thead>
     <tr>
@@ -38,11 +85,11 @@
 </fieldset>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io.connect('http://localhost:3001/room', { // 네임스페이스
+  const socket = io.connect('http://localhost:3001/room', {
     path: '/socket.io',
   });
 
-  socket.on('newRoom', function (data) { // 새 방 이벤트 시 새 방 생성
+  socket.on('newRoom', function (data) {
     const tr = document.createElement('tr');
     let td = document.createElement('td');
     td.textContent = data.title;
@@ -65,10 +112,10 @@
     td.appendChild(button);
     tr.appendChild(td);
     tr.dataset.id = data._id;
-    document.querySelector('table tbody').appendChild(tr); // 화면에 추가
+    document.querySelector('table tbody').appendChild(tr);
   });
 
-  socket.on('removeRoom', function (data) { // 방 제거 이벤트 시 id가 일치하는 방 제거
+  socket.on('removeRoom', function (data) {
     document.querySelectorAll('tbody tr').forEach(function (tr) {
       if (tr.dataset.id === data) {
         tr.parentNode.removeChild(tr);
@@ -76,7 +123,7 @@
     });
   });
 
-  function addBtnEvent(e) { // 방 입장 클릭 시
+  function addBtnEvent(e) {
     if (e.target.dataset.password === 'true') {
       const password = prompt('비밀번호를 입력하세요');
       location.href = '/room/' + e.target.dataset.id + '?password=' + password;
