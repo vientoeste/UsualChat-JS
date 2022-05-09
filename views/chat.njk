@@ -106,10 +106,6 @@
     }
     document.querySelector('#chat-list').appendChild(div);
   });
-  
-  document.querySelector('#removeroom').addEventListener('submit', () => {
-    axios.delete('/room/{{room._id}}');
-  });
 
   document.querySelector('#chat-form').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -125,6 +121,11 @@
           console.error(err);
         });
     }
+  });
+  
+  document.querySelector('#removeroom').addEventListener('submit', (e) => {
+    e.preventDefault();
+    axios.delete('/room/{{room._id}}');
   });
 
   document.querySelector('#img').addEventListener('change', (e) => {

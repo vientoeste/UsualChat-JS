@@ -194,6 +194,7 @@ app
         }, 100);
         await Room.remove({ _id: req.params.id });
         await Chat.remove({ room: req.params.id });
+        res.redirect('/')
       } catch (error) {
         console.error(error);
         next(error);
