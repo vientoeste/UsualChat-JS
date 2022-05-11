@@ -4,53 +4,6 @@
 <h1>UsualChat 채팅방</h1>
 <h2><button type="button" onclick="location.href='/logout'" style="position:relative"> 로그아웃 </button></h2>
 <fieldset style="float: left">
-  <legend>친구</legend>
-  <table>
-    <thead>
-    <tr>
-      <th>아이디</th>
-      <th>1:1 채팅</th>
-    </tr>
-    </thead>
-    <tbody>
-
-      <tr>
-        <td>aaaaaaaaaa</td>
-        <td>
-          <button>입장</button>
-        </td>
-      </tr>
-
-    </tbody>
-  </table>
-  <br>
-  <input type="checkbox" id="friendBtn" style="position: fixed; left:-9999px"><label for="friendBtn" class="friendBtn" style="cursor:pointer"><b>친구 관리</b></label>
-  <div class='friend'>
-친구 추가<br>
-<input type="text" size="15"><button>전송</button><br>
-친구 삭제<br>
-<input type="text" size="15"><button>전송</button>
-<br>친구 요청
-  <table>
-    <thead>
-      <tr>
-        <th>아이디</th>
-        <th>날짜</th>
-      </tr>
-    </thead>
-    <tbody>
-
-      <tr>
-        <td>aaaaaaaaaa</td>
-        <td>05/09</td>
-        <td><button>O</button><button>X</button></td>
-      </tr>
-
-    </tbody>
-    </table>
-    </div>
-</fieldset>
-<fieldset style="float: left">
   <legend>채팅방</legend>
   <table>
     <thead>
@@ -82,6 +35,53 @@
   </table>
   <div class="error-message">{{error}}</div>
   <a href="/room">채팅방 생성</a>
+</fieldset>
+<fieldset style="float: left">
+  <legend>친구</legend>
+  <table>
+    <thead>
+    <tr>
+      <th>아이디</th>
+      <th>1:1 채팅</th>
+    </tr>
+    </thead>
+    <tbody>
+
+      <tr>
+        <td>aaaaaaaaaa</td>
+        <td>
+          <button>입장</button>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+  <br>
+  <input type="checkbox" id="friendBtn" style="position: fixed; left:-9999px"><label for="friendBtn" class="friendBtn" style="cursor:pointer"><b>친구 관리</b></label>
+  <div class='friend'>
+친구 추가<br>
+<input type="text" size="15"><button>추가</button><br>
+친구 삭제<br>
+<input type="text" size="15"><button>삭제</button>
+<br>친구 요청
+  <table>
+    <thead>
+      <tr>
+        <th>아이디</th>
+        <th>날짜</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr>
+        <td>aaaaaaaaaa</td>
+        <td>05/09</td>
+        <td><button>O</button><button>X</button></td>
+      </tr>
+
+    </tbody>
+    </table>
+    </div>
 </fieldset>
 <script src="/socket.io/socket.io.js"></script>
 <script>

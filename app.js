@@ -18,7 +18,6 @@ const connect = require('./schemas');
 
 const Room = require('./schemas/room');
 const Chat = require('./schemas/chat');
-const room = require('./schemas/room');
 
 const app = express();
 
@@ -187,11 +186,9 @@ app
     let roomid = await Room.findById({ _id: req.params.id });
     if (roomid.owner === req.session.username) {
       try {        
+        await req.app.get('io').of('/room').emit('removeRoom', req.params.id);
         const io = req.app.get('io');
         io.of('/chat').emit('reload');
-        setTimeout(() => {
-          req.app.get('io').of('/room').emit('removeRoom', req.params.id);
-        }, 100);
         await Room.remove({ _id: req.params.id });
         await Chat.remove({ room: req.params.id });
         res.redirect('/')
@@ -253,7 +250,7 @@ app.post('/room/:id/img', upload.single('img'), async (req, res, next) => {
   }
 });
 
-app.post('/room/:id/file', upload.single('another'), async (req, res, next) => {
+app.post('/room/:id/file', upload.single('file'), async (req, res, next) => {
   try {
     const chat = await Chat.create({
       room: req.params.id,

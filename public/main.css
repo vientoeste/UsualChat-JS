@@ -37,3 +37,9 @@ table, table th, table td {
 #friendBtn:checked ~ .friend {
   display: block
 }
+.reg {
+  display: none;
+}
+#regBtn:checked ~ .reg {
+  display: block
+}

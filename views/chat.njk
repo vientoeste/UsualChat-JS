@@ -46,8 +46,8 @@
 </fieldset>
 <form action="/chat" id="chat-form" method="post" enctype="multipart/form-data">
   <label for="img">파일 업로드</label>
-  <input type="file" id="img" name="img" />
-  <input type="text" id="chat" name="chat" />
+  <input type="file" id="img" name="img">
+  <input type="text" id="chat" name="chat">
   <button type="submit">전송</button>
 </form>
 
@@ -122,7 +122,7 @@
         });
     }
   });
-  
+
   document.querySelector('#removeroom').addEventListener('submit', (e) => {
     e.preventDefault();
     axios.delete('/room/{{room._id}}');
@@ -142,7 +142,7 @@
       });
   });
 
-  {# document.querySelector('#file').addEventListener('change', (e) => {
+  document.querySelector('#file').addEventListener('change', (e) => {
     console.log(e.target.files);
     const formData = new FormData();
     formData.append('file', e.target.files[0]);
@@ -154,6 +154,6 @@
       .catch((err) => {
         console.error(err);
       });
-  }); #}
+  });
 </script>
 {% endblock %}
