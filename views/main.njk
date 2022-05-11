@@ -83,6 +83,8 @@
     </table>
     </div>
 </fieldset>
+    <a href="/deluser" type="button">회원 탈퇴</button>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
   const socket = io.connect('http://localhost:3001/room', {
@@ -135,6 +137,7 @@
   document.querySelectorAll('.register-btn').forEach(function (btn) {
     btn.addEventListener('click', addBtnEvent);
   });
+
 </script>
 {% endblock %}
 

@@ -82,23 +82,30 @@ app.route('/').get(async (req, res, next) => {
   }
 });
 
-app.route('/register').post((req, res) => {
-  User.register(
-    { username: req.body.username },
-    req.body.password,
-    (err, newUser) => {
-      if (err) {
-        console.log(err);
-        res.redirect('/login');
-      } else {
-        passport.authenticate('local')(req, res, () => {
-          req.session.username = req.body.username;
-          res.redirect('/');
-        });
+app.route('/register')
+  .post((req, res) => {
+    User.register(
+      { username: req.body.username },
+      req.body.password,
+      (err, newUser) => {
+        if (err) {
+          console.log(err);
+          res.redirect('/login');
+        } else {
+          passport.authenticate('local')(req, res, () => {
+            req.session.username = req.body.username;
+            res.redirect('/');
+          });
+        }
       }
-    }
-  );
-});
+    );
+  })
+
+app.get('/deluser', async (req, res) => {
+    await User.remove({ username: req.session.username });
+    res.redirect('/login')
+})
+
 app
   .route('/login')
   .get((req, res) => {
