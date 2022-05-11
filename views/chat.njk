@@ -123,8 +123,6 @@
     }
   });
 
- 
-
   document.querySelector('#img').addEventListener('change', (e) => {
     console.log(e.target.files);
     const formData = new FormData();
@@ -138,7 +136,7 @@
         console.error(err);
       });
   });
-
+{# 
   document.querySelector('#file').addEventListener('change', (e) => {
     console.log(e.target.files);
     const formData = new FormData();
@@ -151,8 +149,8 @@
       .catch((err) => {
         console.error(err);
       });
-  });
-  
+  }); #}
+
   document.querySelector('#removeroom').addEventListener('submit', (e) => {
     e.preventDefault();
     axios.delete('/room/{{room._id}}');

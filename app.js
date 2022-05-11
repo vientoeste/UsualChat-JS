@@ -18,6 +18,7 @@ const connect = require('./schemas');
 
 const Room = require('./schemas/room');
 const Chat = require('./schemas/chat');
+const Friend = require('./schemas/friend');
 
 const app = express();
 
@@ -100,6 +101,19 @@ app.route('/register')
       }
     );
   })
+
+app.post('/friend', async (req, res) => {
+  console.log(req.body.friend)
+  let tmp = await User.findOne({ username: req.body.friend })
+  if(!tmp) {
+    console.log('존재하지 않는 유저')
+  } else {
+    await Friend.create({ 
+    sender: req.session.username, 
+    receiver: req.body.friend 
+  })
+  res.send('ok')
+}})
 
 app.get('/deluser', async (req, res) => {
     await User.remove({ username: req.session.username });

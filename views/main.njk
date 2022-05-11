@@ -60,7 +60,8 @@
   <input type="checkbox" id="friendBtn" style="position: fixed; left:-9999px"><label for="friendBtn" class="friendBtn" style="cursor:pointer"><b>친구 관리</b></label>
   <div class='friend'>
 친구 추가<br>
-<input type="text" size="15"><button>추가</button><br>
+<form action='/friend' method="post" id="addfriend" >
+<input type="text" size="15" id="friend" name="friend"><button type="submit">추가</button></form><br>
 친구 삭제<br>
 <input type="text" size="15"><button>삭제</button>
 <br>친구 요청
@@ -137,6 +138,18 @@
   document.querySelectorAll('.register-btn').forEach(function (btn) {
     btn.addEventListener('click', addBtnEvent);
   });
+  document.querySelector('#addfriend').addEventListener('submit', e => {
+    e.preventDefault();
+      axios.post('/friend', {
+        friend: this.friend.value,
+      })
+      .then(() => {
+        e.target.friend.value = '';
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  })
 
 </script>
 {% endblock %}
