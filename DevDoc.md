@@ -48,3 +48,11 @@
 - 채팅방 참여자 이미지 업로드 문제 해결
 - 회원 탈퇴 기능 구현(라우팅 구조 수정 필요)
 - Friend 다큐먼트 구성
+
+## ff77b4f
+- file queryselector에서 오류가 발생해 해당 라인들 주석 처리
+- 친구 요청 전송 데이터베이스 구현(스키마: sender, receiver, isAccepted, date)
+
+##
+- 친구 요청 list 제공
+- 라우터('/') 내 기능 일부 구현(DB 쿼리, render parameter 설정 등)

@@ -75,7 +75,11 @@ app.route('/').get(async (req, res, next) => {
   } else {
     try {
       const rooms = await Room.find({});
-      res.render('main', { rooms, title: 'UsualChat' });
+      const friends = await Friend.find({ 
+        receiver: req.session.username, 
+        isAccepted: false 
+      });
+      res.render('main', { rooms, friends, title: 'UsualChat' });
     } catch (error) {
       console.error(error);
       next(error);
@@ -106,7 +110,7 @@ app.post('/friend', async (req, res) => {
   console.log(req.body.friend)
   let tmp = await User.findOne({ username: req.body.friend })
   if(!tmp) {
-    console.log('존재하지 않는 유저')
+    res.render('error');
   } else {
     await Friend.create({ 
     sender: req.session.username, 
@@ -116,8 +120,8 @@ app.post('/friend', async (req, res) => {
 }})
 
 app.get('/deluser', async (req, res) => {
-    await User.remove({ username: req.session.username });
-    res.redirect('/login')
+  await User.remove({ username: req.session.username });
+  res.redirect('/login')
 })
 
 app

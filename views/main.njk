@@ -73,18 +73,18 @@
       </tr>
     </thead>
     <tbody>
-
+      {% for friend in friends %}
       <tr>
-        <td>aaaaaaaaaa</td>
-        <td>05/09</td>
+        <td>{{friend.sender}}</td>
+        <td>{{friend.createdAt}}</td>
         <td><button>O</button><button>X</button></td>
       </tr>
-
+      {% endfor %}
     </tbody>
     </table>
     </div>
 </fieldset>
-    <a href="/deluser" type="button">회원 탈퇴</button>
+<a href="/deluser" type="button">회원 탈퇴</button>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
