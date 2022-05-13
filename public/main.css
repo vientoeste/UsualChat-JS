@@ -1,4 +1,7 @@
 * { box-sizing: border-box; }
+/* body {
+  background-color: #4e6768;
+} */
 .mine { text-align: right; }
 .system { text-align: center; }
 .mine img, .other img {

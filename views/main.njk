@@ -46,14 +46,14 @@
     </tr>
     </thead>
     <tbody>
-
+      {% for friend in friendlist %}
       <tr>
-        <td>aaaaaaaaaa</td>
+        <td>{{friend}}</td>
         <td>
           <button>입장</button>
         </td>
       </tr>
-
+      {% endfor %}
     </tbody>
   </table>
   <br>
@@ -73,11 +73,18 @@
       </tr>
     </thead>
     <tbody>
-      {% for friend in friends %}
-      <tr>
+      {% for friend in friendreqs %}
+      <tr data-id="{{friend._id}}">
         <td>{{friend.sender}}</td>
         <td>{{friend.createdAt}}</td>
-        <td><button>O</button><button>X</button></td>
+        <td>
+          <form action="/friend/{{friend._id}}" method="post" id="accept">
+            <button type="submit">O</button>
+          </form>
+          <form action="/friend/{{friend._id}}/delete" method="post" id="reject">
+            <button type="submit">X</button>
+          </form>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -140,15 +147,21 @@
   });
   document.querySelector('#addfriend').addEventListener('submit', e => {
     e.preventDefault();
-      axios.post('/friend', {
-        friend: this.friend.value,
-      })
-      .then(() => {
-        e.target.friend.value = '';
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    axios.post('/friend', {
+      friend: this.friend.value,
+    })
+    .then(() => {
+      e.target.friend.value = '';
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+  })
+  document.querySelector('#accept').addEventListener('submit', (e) => {
+    alert('친구 요청을 수락했습니다.')
+  })
+  document.querySelector('#reject').addEventListener('submit', (e) => {
+    alert('친구 요청을 거절했습니다.')
   })
 
 </script>

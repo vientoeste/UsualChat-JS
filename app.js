@@ -75,11 +75,22 @@ app.route('/').get(async (req, res, next) => {
   } else {
     try {
       const rooms = await Room.find({});
-      const friends = await Friend.find({ 
+      const friendreqs = await Friend.find({ 
         receiver: req.session.username, 
         isAccepted: false 
       });
-      res.render('main', { rooms, friends, title: 'UsualChat' });
+      const accfriends = await Friend.find({
+        isAccepted: true
+      })
+      let friendlist = [];
+      for(i=0;i<accfriends.length;i++) {
+        if(accfriends[i].receiver === req.session.username){
+          friendlist[i] = accfriends[i].sender;
+        } else {
+          friendlist[i] = accfriends[i].receiver;
+        }
+      }
+      res.render('main', { rooms, friendreqs, friendlist, title: 'UsualChat' });
     } catch (error) {
       console.error(error);
       next(error);
@@ -106,18 +117,44 @@ app.route('/register')
     );
   })
 
-app.post('/friend', async (req, res) => {
-  console.log(req.body.friend)
-  let tmp = await User.findOne({ username: req.body.friend })
-  if(!tmp) {
-    res.render('error');
-  } else {
-    await Friend.create({ 
-    sender: req.session.username, 
-    receiver: req.body.friend 
+app.route('/friend')
+  .post(async (req, res, next) => {
+    let tmp = await User.findOne({ username: req.body.friend })
+    console.log(tmp)
+    try {
+      if(!tmp) {
+        res.redirect('/?error=존재하지 않는 유저입니다.')
+      } else {
+        await Friend.create({ 
+          sender: req.session.username, 
+          receiver: req.body.friend 
+        })
+        res.send('ok')
+      }
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }})
+
+app.route('/friend/:id')
+  .get((req, res) => {
+    res.send('ok')
   })
-  res.send('ok')
-}})
+  .post(async (req, res) => {
+    await Friend.findByIdAndUpdate({
+      _id: req.params.id
+    }, {
+      isAccepted: true
+    })
+    res.redirect('/')
+  })
+
+app.post('/friend/:id/delete', async (req, res) => {
+  await Friend.findByIdAndDelete({
+    _id: req.params.id
+  })
+  res.redirect('/')
+})
 
 app.get('/deluser', async (req, res) => {
   await User.remove({ username: req.session.username });
@@ -239,13 +276,13 @@ app.route('/room/:id/chat').post(async (req, res, next) => {
   }
 });
 
-/*--업로드 구현부--*/
 try {
   fs.readdirSync('uploads');
 } catch (err) {
   console.error('uploads 폴더가 없어 uploads 폴더를 생성합니다.');
   fs.mkdirSync('uploads');
 }
+
 const upload = multer({
   storage: multer.diskStorage({
     destination(req, file, done) {

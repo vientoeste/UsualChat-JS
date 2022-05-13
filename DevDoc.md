@@ -6,14 +6,13 @@
 - socket.io v2.4.1에서 4.x로 마이그레이션 필요
 - mongoose v5.13.15에서 6.x로 마이그레이션 필요
 ## 추후 수정할 기능들
-- User - N:M 관계로 친구 추가 기능 구현
 - 메인('/')화면에서 친구 목록 및 1:1 채팅 기능 구현(1:1 채팅방은 방 목록에 보이지 않도록)
 - MongoDB ODM 로직 개선
 - 유저 프로필 사진(혹은 아이콘) 설정
 - electron으로 Window app publish / cordova 사용 고려(Android Studio SDK 사용을 원칙으로 하나 구현 실패 시 cordova 사용)
 - 파일 구조 개선 필요
 - 회원 탈퇴 기능 중 라우팅 구조 수정 필요(/deluser에 GET 요청으로 처리 중)
-
+- 다크 테마
 
 # commit 별 수정 사항
 ## b014819
@@ -53,6 +52,10 @@
 - file queryselector에서 오류가 발생해 해당 라인들 주석 처리
 - 친구 요청 전송 데이터베이스 구현(스키마: sender, receiver, isAccepted, date)
 
-##
+## 0358409
 - 친구 요청 list 제공
 - 라우터('/') 내 기능 일부 구현(DB 쿼리, render parameter 설정 등)
+
+## 
+- 친구 요청 수락/거절 기능 구현
+- 친구 list 제공
