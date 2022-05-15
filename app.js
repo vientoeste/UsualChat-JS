@@ -74,7 +74,9 @@ app.route('/').get(async (req, res, next) => {
     res.redirect('login');
   } else {
     try {
-      const rooms = await Room.find({});
+      const rooms = await Room.find({
+        isDM: false
+      });
       const friendreqs = await Friend.find({ 
         receiver: req.session.username, 
         isAccepted: false 
@@ -149,14 +151,14 @@ app.route('/friend/:id')
     res.redirect('/')
   })
 
-app.post('/friend/:id/delete', async (req, res) => {
+app.post('/friend/:id/deletereq', async (req, res) => {
   await Friend.findByIdAndDelete({
     _id: req.params.id
   })
   res.redirect('/')
 })
 
-app.get('/deluser', async (req, res) => {
+app.get('/unregister', async (req, res) => {
   await User.remove({ username: req.session.username });
   res.redirect('/login')
 })
@@ -202,6 +204,7 @@ app
         max: req.body.max,
         owner: req.session.username,
         password: req.body.password,
+        isDM: false,
       });
       const io = req.app.get('io');
       io.of('/room').emit('newRoom', newRoom);
@@ -230,7 +233,7 @@ app
         rooms[req.params.id] &&
         room.max <= rooms[req.params.id].length
       ) {
-        return res.redirect('/?error=허용 인원이 초과하였습니다.');
+        return res.redirect('/?error=허용 인원을 초과하였습니다.');
       }
       const chats = await Chat.find({ room: room._id }).sort('createdAt');
       return res.render('chat', {

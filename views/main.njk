@@ -43,6 +43,7 @@
     <tr>
       <th>아이디</th>
       <th>1:1 채팅</th>
+      <th>친구 삭제</th>
     </tr>
     </thead>
     <tbody>
@@ -51,6 +52,9 @@
         <td>{{friend}}</td>
         <td>
           <button>입장</button>
+        </td>
+        <td>
+          <button>친구 삭제</button>
         </td>
       </tr>
       {% endfor %}
@@ -81,7 +85,7 @@
           <form action="/friend/{{friend._id}}" method="post" id="accept">
             <button type="submit">O</button>
           </form>
-          <form action="/friend/{{friend._id}}/delete" method="post" id="reject">
+          <form action="/friend/{{friend._id}}/deletereq" method="post" id="reject">
             <button type="submit">X</button>
           </form>
         </td>
@@ -91,7 +95,7 @@
     </table>
     </div>
 </fieldset>
-<a href="/deluser" type="button">회원 탈퇴</button>
+<a href="/unregister" type="button">회원 탈퇴</button>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>

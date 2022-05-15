@@ -14,6 +14,8 @@
 - 회원 탈퇴 기능 중 라우팅 구조 수정 필요(/deluser에 GET 요청으로 처리 중)
 - 다크 테마
 
+-----------------------------
+
 # commit 별 수정 사항
 ## b014819
 - 방 삭제 시 연결된 모든 유저 새로고침(로직 개선 필요)
@@ -56,6 +58,20 @@
 - 친구 요청 list 제공
 - 라우터('/') 내 기능 일부 구현(DB 쿼리, render parameter 설정 등)
 
-## 
+## e760a51
 - 친구 요청 수락/거절 기능 구현
 - 친구 list 제공
+
+## 
+- Room schema에 isDM(boolean) 속성을 추가해 1:1 채팅 기능의 기반 생성
+- 간단한 로직 수정
+----------------------------------------
+
+# ref info
+- HTML form 태그 등에서는 HTTP METHOD 중 PUT, DELETE 등을 지원하지 않는다
+    * sol. socket.io 사용 시, 소켓 이벤트 발생 시 delete 요청을 보내도록 처리
+        + 현재 DELETE 요청을 사용할 수 없어 모두 새로운 하위 경로에 POST 요청으로 처리하고 있음
+        + HTML 사이드에서 DELETE 요청을 보내는 방법을 찾을 필요가 있음
+            * `document.querySelector(#__).addEventListener('submit', () => { axios.delete ~~ })`으로 처리할 수 있는지 확인해야 함
+            * `<button action='/경로' method='delete'>` 등으로 DELETE 요청을 보내고자 해도 자동으로 GET 요청으로 처리
+- /:id 경로(MongoDB 기준 _id 항목) 사용 시 req.params.id로 해당 id에 접근할 수 있다
