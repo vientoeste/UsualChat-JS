@@ -49,12 +49,14 @@
     <tbody>
       {% for friend in friendlist %}
       <tr>
-        <td>{{friend}}</td>
+        <td>{{friend.friendl}}</td>
         <td>
-          <button>입장</button>
+          <button type='submit'>입장</button>
         </td>
         <td>
-          <button>친구 삭제</button>
+          <form action='/friend/{{friend._id}}/delete' method='post' id="delfriend">
+            <button type='submit'>친구 삭제</button>
+          </form>
         </td>
       </tr>
       {% endfor %}
@@ -65,12 +67,10 @@
   <div class='friend'>
 친구 추가<br>
 <form action='/friend' method="post" id="addfriend" >
-<input type="text" size="15" id="friend" name="friend"><button type="submit">추가</button></form><br>
-친구 삭제<br>
-<input type="text" size="15"><button>삭제</button>
+<input type="text" size="15" id="friend" name="friend"><button type="submit">추가</button></form>
 <br>친구 요청
   <table>
-    <thead>
+    <thead> 
       <tr>
         <th>아이디</th>
         <th>날짜</th>
@@ -160,6 +160,9 @@
     .catch((err) => {
       console.error(err);
     });
+  })
+  document.querySelector("#delfriend").addEventListener('submit', e => {
+    alert('친구 삭제 요청')
   })
   document.querySelector('#accept').addEventListener('submit', (e) => {
     alert('친구 요청을 수락했습니다.')

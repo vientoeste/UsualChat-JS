@@ -19,6 +19,7 @@ const connect = require('./schemas');
 const Room = require('./schemas/room');
 const Chat = require('./schemas/chat');
 const Friend = require('./schemas/friend');
+const friend = require('./schemas/friend');
 
 const app = express();
 
@@ -85,11 +86,18 @@ app.route('/').get(async (req, res, next) => {
         isAccepted: true
       })
       let friendlist = [];
-      for(i=0;i<accfriends.length;i++) {
+ 
+      for(i = 0 ; i < accfriends.length ; i++) {
         if(accfriends[i].receiver === req.session.username){
-          friendlist[i] = accfriends[i].sender;
+          friendlist[i] = { 
+            friendl: accfriends[i].sender, 
+            _id: accfriends[i]._id 
+          };
         } else {
-          friendlist[i] = accfriends[i].receiver;
+          friendlist[i] = {
+            friendl: accfriends[i].receiver,
+            _id: accfriends[i]._id 
+          };
         }
       }
       res.render('main', { rooms, friendreqs, friendlist, title: 'UsualChat' });
@@ -158,6 +166,13 @@ app.post('/friend/:id/deletereq', async (req, res) => {
   res.redirect('/')
 })
 
+app.post('/friend/:id/delete', async (req, res) => {
+  await Friend.findByIdAndDelete({
+    _id: req.params.id
+  })
+  res.redirect('/')
+})
+
 app.get('/unregister', async (req, res) => {
   await User.remove({ username: req.session.username });
   res.redirect('/login')
@@ -214,6 +229,56 @@ app
       next(error);
     }
   });
+app.route('/dm')
+  .get((req, res) => {
+
+  })
+  .post(async (req, res, next) => {
+    try {
+      const newRoom = await Room.create({
+        title: 'DM',
+        owner: req.session.username,
+        isDM: true,
+        target: req.body.friendl, //아마 안 받아와질 것
+      })
+      await Friend.findOneAndUpdate({
+        dm: newRoom._id,
+      })
+      res.redirect(`/dm/${newRoom._id}`);
+    } catch(error) {
+      console.log(error);
+      next(error);
+    }
+  })
+
+app.route('/dm/:id')
+  .get(async (req, res, next) => {
+    try {
+      const room = await Room.findOne({ _id: req.params.id });
+      const io = req.app.get('io');
+      if (!room) {
+        return res.redirect('/');
+      }
+      // const { rooms } = io.of('/chat').adapter;
+      // if (  //해당 조건문을 사용자와 대상 사이의 DM인지 체크하는 조건문으로
+      //   rooms &&
+      //   rooms[req.params.id] &&
+      //   room.max <= rooms[req.params.id].length
+      // ) {
+      //   return res.redirect('/?error=허용 인원을 초과하였습니다.');
+      // }
+      const chats = await Chat.find({ room: room._id }).sort('createdAt');
+      return res.render('chat', {
+        room,
+        title: req.body.friendl,
+        chats,
+        user: req.session.username,
+      });
+    } catch (error) {
+      console.error(error);
+      return next(error);
+    }
+  })
 
 app
   .route('/room/:id')

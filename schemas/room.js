@@ -21,6 +21,11 @@ const roomSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  isDM: {
+    type: Boolean,
+    default: false,
+  },
+  target: String,
 });
 
 module.exports = mongoose.model('Room', roomSchema);

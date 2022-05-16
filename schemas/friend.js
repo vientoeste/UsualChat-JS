@@ -18,6 +18,10 @@ const friendSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    dm: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Room",
+    }
 });
 
 module.exports = mongoose.model('Friend', friendSchema);
