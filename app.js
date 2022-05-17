@@ -86,7 +86,6 @@ app.route('/').get(async (req, res, next) => {
         isAccepted: true
       })
       let friendlist = [];
- 
       for(i = 0 ; i < accfriends.length ; i++) {
         if(accfriends[i].receiver === req.session.username){
           friendlist[i] = { 
@@ -130,7 +129,6 @@ app.route('/register')
 app.route('/friend')
   .post(async (req, res, next) => {
     let tmp = await User.findOne({ username: req.body.friend })
-    console.log(tmp)
     try {
       if(!tmp) {
         res.redirect('/?error=존재하지 않는 유저입니다.')
@@ -229,22 +227,56 @@ app
       next(error);
     }
   });
+
 app.route('/dm')
-  .get((req, res) => {
+  .get((req, res, next) => {
 
   })
   .post(async (req, res, next) => {
     try {
-      const newRoom = await Room.create({
-        title: 'DM',
-        owner: req.session.username,
+      let dmroomid = 0; 
+      console.log(req.body.friendl)
+      const tmp1 = await Room.find({
         isDM: true,
-        target: req.body.friendl, //아마 안 받아와질 것
+        owner: req.session.username,
+        target: req.body.friendl,
+      }).then((rooms) => {
+        if(rooms.length === 0) {
+          return false;
+        } else {
+          dmroomid = rooms[0]._id;
+          return true;
+        }
       })
-      await Friend.findOneAndUpdate({
-        dm: newRoom._id,
+      const tmp2 = await Room.find({
+        isDM: true,
+        owner: req.body.friendl,
+        target: req.session.username
+      }).then((rooms) => {
+        if(rooms.length === 0) {
+          return false;
+        } else {
+          dmroomid = rooms[0]._id;
+          return true;
+        }
       })
-      res.redirect(`/dm/${newRoom._id}`);
+      console.log(`dmroomid는 ${dmroomid}`)
+      if(tmp1===false && tmp2===false) {
+        const newRoom = await Room.create({
+          title: 'Direct Message',
+          max: 2,
+          owner: req.session.username,
+          isDM: true,
+          target: req.body.friendl,
+        })
+        await Friend.findOneAndUpdate({
+          dm: newRoom._id,
+        })
+        res.redirect(`/room/${newRoom._id}`);        
+      } else {
+        console.log('방이 이미 존재')
+        res.redirect(`/room/${dmroomid}`);
+      }
     } catch(error) {
       console.log(error);
       next(error);
@@ -270,7 +302,7 @@ app.route('/dm/:id')
       const chats = await Chat.find({ room: room._id }).sort('createdAt');
       return res.render('chat', {
         room,
-        title: req.body.friendl,
+        title: 'Direct Message',
         chats,
         user: req.session.username,
       });

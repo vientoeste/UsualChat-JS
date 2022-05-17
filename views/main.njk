@@ -51,7 +51,10 @@
       <tr>
         <td>{{friend.friendl}}</td>
         <td>
-          <button type='submit'>입장</button>
+          <form action='/dm' method='post'>          
+          <input type='text' id='friendl' name='friendl' value='{{friend.friendl}}' style='display: none;'>
+            <button type='submit'>입장</button>
+          </form>
         </td>
         <td>
           <form action='/friend/{{friend._id}}/delete' method='post' id="delfriend">
@@ -161,6 +164,7 @@
       console.error(err);
     });
   })
+
   document.querySelector("#delfriend").addEventListener('submit', e => {
     alert('친구 삭제 요청')
   })

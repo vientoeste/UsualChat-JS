@@ -2,7 +2,7 @@
 {% block content %}
 <h1>{{title}}</h1>
 <div align="right"> <a href="/" type="button" id="exit-btn">방 나가기</a>
-{% if user === room.owner %}
+{% if user === room.owner and title !== 'Direct Message' %}
   <form action="/room/{{room._id}}" id="removeroom">
     <button type="submit">방 제거</button>
   </form>
