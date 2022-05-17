@@ -19,7 +19,6 @@ const connect = require('./schemas');
 const Room = require('./schemas/room');
 const Chat = require('./schemas/chat');
 const Friend = require('./schemas/friend');
-const friend = require('./schemas/friend');
 
 const app = express();
 
@@ -164,11 +163,19 @@ app.post('/friend/:id/deletereq', async (req, res) => {
   res.redirect('/')
 })
 
-app.post('/friend/:id/delete', async (req, res) => {
-  await Friend.findByIdAndDelete({
-    _id: req.params.id
-  })
+app.post('/friend/:id/delete', async (req, res, next) => {
+  try {
+    const tmp = await Friend.findByIdAndDelete({
+      _id: req.params.id
+    })
+    await Room.findByIdAndDelete({
+      _id: tmp.dm
+    })
   res.redirect('/')
+  } catch(error) {
+    console.log(error)
+    next(error)
+  }
 })
 
 app.get('/unregister', async (req, res) => {
@@ -176,8 +183,7 @@ app.get('/unregister', async (req, res) => {
   res.redirect('/login')
 })
 
-app
-  .route('/login')
+app.route('/login')
   .get((req, res) => {
     res.render('login');
   })
@@ -199,14 +205,14 @@ app
     });
   });
 
-app.route('/logout').get((req, res) => {
-  req.logout();
-  req.session.destroy();
-  res.redirect('/');
-});
+app.route('/logout')
+  .get((req, res) => {
+    req.logout();
+    req.session.destroy();
+    res.redirect('/');
+  });
 
-app
-  .route('/room')
+app.route('/room')
   .get((req, res) => {
     res.render('room', { title: 'UsualChat 채팅방 생성' });
   })
@@ -229,17 +235,18 @@ app
   });
 
 app.route('/dm')
-  .get((req, res, next) => {
-
-  })
   .post(async (req, res, next) => {
     try {
-      let dmroomid = 0; 
-      console.log(req.body.friendl)
+      let dmroomid = 0;
       const tmp1 = await Room.find({
-        isDM: true,
-        owner: req.session.username,
-        target: req.body.friendl,
+        isDM: true, 
+        $or: [{
+          owner: req.session.username,
+          target: req.body.friendl,
+        }, {
+          owner: req.body.friendl,
+          target: req.session.username
+        }]
       }).then((rooms) => {
         if(rooms.length === 0) {
           return false;
@@ -248,20 +255,18 @@ app.route('/dm')
           return true;
         }
       })
-      const tmp2 = await Room.find({
-        isDM: true,
-        owner: req.body.friendl,
-        target: req.session.username
-      }).then((rooms) => {
-        if(rooms.length === 0) {
-          return false;
-        } else {
-          dmroomid = rooms[0]._id;
-          return true;
-        }
+      const tmp3 = await Friend.find({ 
+        $or: [{
+          sender: req.body.friendl,
+          receiver: req.session.username
+        }, {
+          sender: req.session.username,
+          receiver: req.body.friendl
+        }]
+      }).then((friends) => {
+        return friends[0]._id
       })
-      console.log(`dmroomid는 ${dmroomid}`)
-      if(tmp1===false && tmp2===false) {
+      if(tmp1===false) {
         const newRoom = await Room.create({
           title: 'Direct Message',
           max: 2,
@@ -270,11 +275,13 @@ app.route('/dm')
           target: req.body.friendl,
         })
         await Friend.findOneAndUpdate({
+          _id: tmp3
+        }, {
           dm: newRoom._id,
         })
-        res.redirect(`/room/${newRoom._id}`);        
+        console.log(`dm 생성 - id: ${newRoom._id}`)
+        res.redirect(`/room/${newRoom._id}`);
       } else {
-        console.log('방이 이미 존재')
         res.redirect(`/room/${dmroomid}`);
       }
     } catch(error) {
@@ -283,37 +290,7 @@ app.route('/dm')
     }
   })
 
-app.route('/dm/:id')
-  .get(async (req, res, next) => {
-    try {
-      const room = await Room.findOne({ _id: req.params.id });
-      const io = req.app.get('io');
-      if (!room) {
-        return res.redirect('/');
-      }
-      // const { rooms } = io.of('/chat').adapter;
-      // if (  //해당 조건문을 사용자와 대상 사이의 DM인지 체크하는 조건문으로
-      //   rooms &&
-      //   rooms[req.params.id] &&
-      //   room.max <= rooms[req.params.id].length
-      // ) {
-      //   return res.redirect('/?error=허용 인원을 초과하였습니다.');
-      // }
-      const chats = await Chat.find({ room: room._id }).sort('createdAt');
-      return res.render('chat', {
-        room,
-        title: 'Direct Message',
-        chats,
-        user: req.session.username,
-      });
-    } catch (error) {
-      console.error(error);
-      return next(error);
-    }
-  })
-
-app
-  .route('/room/:id')
+app.route('/room/:id')
   .get(async (req, res, next) => {
     try {
       const room = await Room.findOne({ _id: req.params.id });
@@ -440,7 +417,7 @@ app.use((err, req, res, next) => {
 });
 
 const server = app.listen(app.get('port'), () => {
-  console.log(app.get('port'), '번 포트에서 대기중');
+  console.log(app.get('port'), '번 포트에서 대기 중');
 });
 
 webSocket(server, app, sessionMiddleware);

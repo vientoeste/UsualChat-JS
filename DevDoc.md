@@ -66,10 +66,17 @@
 - Room schema에 isDM(boolean) 속성을 추가해 1:1 채팅 기능의 기반 생성
 - 간단한 로직 수정
 
-## 
+## ee1e188
 - 친구 삭제 기능 구현
 - DM 로직(Room 사용 로직이랑 직접적인 연관) 수정 중
 - schema 오류 수정
+
+## 69795b0
+- DM 구현 성공(main - 1:1 채팅 - 입장 버튼을 통해 사용자와 친구만 있는 방 이용 가능)(조건 부합 시 id를 DB에 쿼리하여 `redirect('/room/:id')`하는 로직)
+
+##
+- 친구 삭제 시 DM 삭제
+- DM 관련 로직 개선(mongoose - $or을 사용해 쿼리 횟수를 줄임)
 
 ----------------------------------------
 
@@ -81,3 +88,4 @@
             * `document.querySelector(#__).addEventListener('submit', () => { axios.delete ~~ })`으로 처리할 수 있는지 확인해야 함
             * `<button action='/경로' method='delete'>` 등으로 DELETE 요청을 보내고자 해도 자동으로 GET 요청으로 처리
 - /:id 경로(MongoDB 기준 _id 항목) 사용 시 req.params.id로 해당 id에 접근할 수 있다
+- form 태그에서 POST 요청을 생성할 때 'input 내의 값'을 서버에 전달한다 - `req.body.{input.name}`로 접근
