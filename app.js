@@ -81,6 +81,7 @@ app.route('/').get(async (req, res, next) => {
     res.redirect('login');
   } else {
     try {
+      const un = req.session.username;
       const rooms = await Room.find({
         isDM: false
       });
@@ -89,23 +90,14 @@ app.route('/').get(async (req, res, next) => {
         isAccepted: false 
       });
       const accfriends = await Friend.find({
+        $or: [{
+          sender: req.session.username
+        }, {
+          receiver: req.session.username
+        }],
         isAccepted: true
       })
-      let friendlist = [];
-      for(i = 0 ; i < accfriends.length ; i++) {
-        if(accfriends[i].receiver === req.session.username){
-          friendlist[i] = { 
-            friendl: accfriends[i].sender, 
-            _id: accfriends[i]._id 
-          };
-        } else {
-          friendlist[i] = {
-            friendl: accfriends[i].receiver,
-            _id: accfriends[i]._id 
-          };
-        }
-      }
-      res.render('main', { rooms, friendreqs, friendlist, title: 'UsualChat' });
+      res.render('main', { un, rooms, friendreqs, accfriends, title: 'UsualChat' });
     } catch (error) {
       console.error(error);
       next(error);

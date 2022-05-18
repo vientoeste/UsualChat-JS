@@ -47,12 +47,20 @@
     </tr>
     </thead>
     <tbody>
-      {% for friend in friendlist %}
+      {% for friend in accfriends %}
       <tr>
-        <td>{{friend.friendl}}</td>
+        <td>{% if un === friend.receiver %}
+          {{friend.sender}}
+          {% else %}
+          {{friend.receiver}}
+          {% endif %}</td>
         <td>
-          <form action='/dm' method='post'>          
-          <input type='text' id='friendl' name='friendl' value='{{friend.friendl}}' style='display: none;'>
+          <form action='/dm' method='post'>
+          <input type='text' id='friendl' name='friendl' value={% if un === friend.receiver %}
+          '{{friend.sender}}'
+          {% else %}
+          '{{friend.receiver}}'
+          {% endif %} style='display: none;'>
             <button type='submit'>입장</button>
           </form>
         </td>
