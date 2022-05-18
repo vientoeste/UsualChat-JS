@@ -11,3 +11,5 @@ uploads/
 launchServer.bat
 mongo.bat
 mongod.bat
+
+package-lock.json

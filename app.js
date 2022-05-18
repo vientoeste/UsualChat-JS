@@ -10,6 +10,8 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const multer = require('multer');
+const resTime = require('response-time');
+const chalk = require('chalk');
 
 dotenv.config();
 
@@ -49,6 +51,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(sessionMiddleware);
+app.use(resTime((req, res, time) => {
+  if(time >= 1000) {
+    console.log('\x1b[1m',chalk.white.bgRed(`1초 이상(${time/1000}초) 걸린 요청: ${req.method} ${req.url}`))
+  }
+}))
 
 app.use(passport.initialize());
 app.use(passport.session());

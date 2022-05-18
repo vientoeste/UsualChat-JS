@@ -1,15 +1,20 @@
 # UsualChat
 Chatting application for Web, Mobile devices
 
+Still not on service
 
+# Contents
+## Chatting
+- Participate in a room(on the main menu) and chat with participants
+- Chat is organized in a simple format(nicknames & content)
+    * Time and profile pics will be added
+## Friends
+- Send friend request by ID(username)
+- Accept & refuse friend requests
+- Chat with your friends one on one(DM)
 
-# 서버를 실행하기 위한 프로세스
-- code clone 후 `node automation`을 통해 batch 파일 3개 생성
-- mongod - mongo 순서로 실행 후 mongo 콘솔에서
-```
-use admin
-db.createUser({ user: '유저이름', pwd: '비밀번호', roles: ['root'] })
-```
-- 실행 후 콘솔에서 `mongod --auth, mongo -u 유저이름 -p 비밀번호` 입력을 통해 DB에 root 권한으로 접속
-
-- .env 파일에 DB ID/PW 입력 후 launchServer.bat 실행 시 서버 실행
+# About Personal Information
+- Server stores only username & pwds
+- Aims for anonymous chatting
+    * But in the future other informations(such as IP addresses) can be collected to add another functions(as report/ban)
+- For the moment when a user leaves the service his(/her) information will be deleted immediately upon withdrawal
