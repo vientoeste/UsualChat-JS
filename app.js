@@ -21,6 +21,7 @@ const connect = require('./schemas');
 const Room = require('./schemas/room');
 const Chat = require('./schemas/chat');
 const Friend = require('./schemas/friend');
+const { deleteMany } = require('./schemas/room');
 
 const app = express();
 
@@ -217,6 +218,10 @@ app.route('/room')
   })
   .post(async (req, res, next) => {
     try {
+      console.log(!!req.body.friend)
+      if(!!req.body.friend) {
+        req.body.title=req.body.friend;
+      }
       const newRoom = await Room.create({
         title: req.body.title,
         max: req.body.max,
@@ -241,9 +246,9 @@ app.route('/dm')
         isDM: true, 
         $or: [{
           owner: req.session.username,
-          target: req.body.friendl,
+          target: req.body.friend,
         }, {
-          owner: req.body.friendl,
+          owner: req.body.friend,
           target: req.session.username
         }]
       }).then((rooms) => {
@@ -256,11 +261,11 @@ app.route('/dm')
       })
       const tmp3 = await Friend.find({ 
         $or: [{
-          sender: req.body.friendl,
+          sender: req.body.friend,
           receiver: req.session.username
         }, {
           sender: req.session.username,
-          receiver: req.body.friendl
+          receiver: req.body.friend
         }]
       }).then((friends) => {
         return friends[0]._id
@@ -271,7 +276,7 @@ app.route('/dm')
           max: 2,
           owner: req.session.username,
           isDM: true,
-          target: req.body.friendl,
+          target: req.body.friend,
         })
         await Friend.findOneAndUpdate({
           _id: tmp3
@@ -336,6 +341,18 @@ app.route('/room/:id')
       }
     }
   })
+
+app.post('/room/:id/clearchat', async (req, res, next) => {
+  try {
+    await Chat.deleteMany({
+      room: req.params.id
+    })
+    res.send('ok')
+  } catch(error) {
+    console.log(error);
+    next(error);
+  }
+})
 
 app.route('/room/:id/chat').post(async (req, res, next) => {
   try {

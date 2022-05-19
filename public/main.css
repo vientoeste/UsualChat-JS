@@ -46,3 +46,24 @@ table, table th, table td {
 #regBtn:checked ~ .reg {
   display: block
 }
+div.login {
+  position:absolute;
+  width: 460px;
+  height: 350px;
+  padding: 10px 30px;
+  left:0; right:0;top: 0; bottom:0;
+  margin-left:auto; margin-right:auto;
+  margin-top:auto; margin-bottom:auto;
+  text-align: justify;
+  box-shadow:
+  1.6px 1.6px 7.8px rgba(0, 0, 0, 0.015),
+  3.4px 3.4px 17.2px rgba(0, 0, 0, 0.022),
+  5.8px 5.8px 28.8px rgba(0, 0, 0, 0.027),
+  8.7px 8.7px 43.4px rgba(0, 0, 0, 0.031),
+  12.5px 12.5px 62.6px rgba(0, 0, 0, 0.035),
+  17.7px 17.7px 88.6px rgba(0, 0, 0, 0.039),
+  25.1px 25.1px 125.7px rgba(0, 0, 0, 0.043),
+  36.5px 36.5px 182.5px rgba(0, 0, 0, 0.048),
+  56.3px 56.3px 281.3px rgba(0, 0, 0, 0.055),
+  100px 100px 500px rgba(0, 0, 0, 0.07);
+}

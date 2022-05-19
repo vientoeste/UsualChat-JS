@@ -6,6 +6,9 @@
   <form action="/room/{{room._id}}" id="removeroom">
     <button type="submit">방 제거</button>
   </form>
+  <form id="removechat">
+    <button type="submit">채팅 내역 삭제</button>
+  </form>
 {% endif %}
 </div>
 <fieldset>
@@ -155,5 +158,10 @@
     e.preventDefault();
     axios.delete('/room/{{room._id}}');
   });
+
+  document.querySelector('#removechat').addEventListener('submit', (e) => {
+    e.preventDefault();
+    axios.post('/room/{{room._id}}/clearchat');
+  })
 </script>
 {% endblock %}

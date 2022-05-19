@@ -56,7 +56,7 @@
           {% endif %}</td>
         <td>
           <form action='/dm' method='post'>
-          <input type='text' id='friendl' name='friendl' value={% if un === friend.receiver %}
+          <input type='text' name='friend' value={% if un === friend.receiver %}
           '{{friend.sender}}'
           {% else %}
           '{{friend.receiver}}'
