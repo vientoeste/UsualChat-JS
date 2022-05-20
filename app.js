@@ -21,7 +21,6 @@ const connect = require('./schemas');
 const Room = require('./schemas/room');
 const Chat = require('./schemas/chat');
 const Friend = require('./schemas/friend');
-const { deleteMany } = require('./schemas/room');
 
 const app = express();
 
@@ -313,7 +312,25 @@ app.route('/room/:id')
       ) {
         return res.redirect('/?error=허용 인원을 초과하였습니다.');
       }
-      const chats = await Chat.find({ room: room._id }).sort('createdAt');
+      const tmp = await User.find({
+        username: req.session.username,
+        [req.params.id]: { $exists: true, $ne: null }
+      })
+      console.log(!!tmp)
+      let chats;
+      if(!!tmp) {
+        chats = await Chat.find({ room: room._id }).sort('createdAt');
+      }
+      else {
+        const tmp2 = User.find({
+          username: req.session.username
+        }).then((items) => {
+          let tmp3 = req.params.id
+          return items[0].tmp3
+        })
+        console.log(tmp2)
+        chats = await Chat.find({ room: room._id }).sort('createdAt')
+      }
       return res.render('chat', {
         room,
         title: room.title,
@@ -344,9 +361,17 @@ app.route('/room/:id')
 
 app.post('/room/:id/clearchat', async (req, res, next) => {
   try {
-    await Chat.deleteMany({
-      room: req.params.id
-    })
+    if(room.owner === req.session.username) {
+      await Chat.deleteMany({
+        room: req.params.id
+      })      
+    } else {
+      await User.findOneAndUpdate({
+        username: req.session.username
+      }, {
+        [req.params.id]: Date.now
+      })
+    }
     res.send('ok')
   } catch(error) {
     console.log(error);

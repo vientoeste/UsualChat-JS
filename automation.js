@@ -20,9 +20,11 @@ nodemon app`;
 nodemonapp();
 
 function mongo(ver) {
-    let string1 = `cd C:\\program files\\mongodb\\server\\${ver}\\bin
+    let string1 = `c:
+cd C:\\program files\\mongodb\\server\\${ver}\\bin
 mongod`
-    let string2 = `cd C:\\program files\\mongodb\\server\\${ver}\\bin
+    let string2 = `c:
+cd C:\\program files\\mongodb\\server\\${ver}\\bin
 mongo`
     fs.exists('mongod.bat', (e) => {
         if(e) {
