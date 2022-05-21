@@ -21,6 +21,7 @@ const connect = require('./schemas');
 const Room = require('./schemas/room');
 const Chat = require('./schemas/chat');
 const Friend = require('./schemas/friend');
+const Flag = require('./schemas/flag');
 
 const app = express();
 
@@ -126,9 +127,9 @@ app.route('/register')
 
 app.route('/friend')
   .post(async (req, res, next) => {
-    let tmp = await User.findOne({ username: req.body.friend })
+    let friend = await User.findOne({ username: req.body.friend })
     try {
-      if(!tmp) {
+      if(!friend) {
         res.redirect('/?error=존재하지 않는 유저입니다.')
       } else {
         await Friend.create({ 
@@ -164,11 +165,22 @@ app.post('/friend/:id/deletereq', async (req, res) => {
 
 app.post('/friend/:id/delete', async (req, res, next) => {
   try {
-    const tmp = await Friend.findByIdAndDelete({
+    const friend = await Friend.find({
       _id: req.params.id
+    }).then(async (items) => {
+      console.log(items[0])
+      await Room.deleteMany({
+        _id: items[0].dm
+      })   
+      await Chat.deleteMany({
+        room: items[0].dm
+      })
+      await Flag.deleteMany({
+        room: items[0].dm
+      })
     })
-    await Room.findByIdAndDelete({
-      _id: tmp.dm
+    await Friend.findByIdAndDelete({
+      _id: req.params.id
     })
   res.redirect('/')
   } catch(error) {
@@ -241,7 +253,7 @@ app.route('/dm')
   .post(async (req, res, next) => {
     try {
       let dmroomid = 0;
-      const tmp1 = await Room.find({
+      const dm = await Room.find({
         isDM: true, 
         $or: [{
           owner: req.session.username,
@@ -258,7 +270,7 @@ app.route('/dm')
           return true;
         }
       })
-      const tmp3 = await Friend.find({ 
+      const friend = await Friend.find({ 
         $or: [{
           sender: req.body.friend,
           receiver: req.session.username
@@ -269,7 +281,7 @@ app.route('/dm')
       }).then((friends) => {
         return friends[0]._id
       })
-      if(tmp1===false) {
+      if(dm===false) {
         const newRoom = await Room.create({
           title: 'Direct Message',
           max: 2,
@@ -278,7 +290,7 @@ app.route('/dm')
           target: req.body.friend,
         })
         await Friend.findOneAndUpdate({
-          _id: tmp3
+          _id: friend
         }, {
           dm: newRoom._id,
         })
@@ -312,24 +324,22 @@ app.route('/room/:id')
       ) {
         return res.redirect('/?error=허용 인원을 초과하였습니다.');
       }
-      const tmp = await User.find({
+      const flag = await Flag.find({
         username: req.session.username,
-        [req.params.id]: { $exists: true, $ne: null }
+        room: req.params.id
+      }).then((items) => {
+        if(items.length===0) {
+          return false
+        } else {
+          return items[0]
+        }
       })
-      console.log(!!tmp)
+
       let chats;
-      if(!!tmp) {
+      if(!flag) {
         chats = await Chat.find({ room: room._id }).sort('createdAt');
-      }
-      else {
-        const tmp2 = User.find({
-          username: req.session.username
-        }).then((items) => {
-          let tmp3 = req.params.id
-          return items[0].tmp3
-        })
-        console.log(tmp2)
-        chats = await Chat.find({ room: room._id }).sort('createdAt')
+      } else {
+        chats = await Chat.find({ room: room._id, createdAt: {$gt: flag.deletedAt} }).sort('createdAt')
       }
       return res.render('chat', {
         room,
@@ -349,8 +359,9 @@ app.route('/room/:id')
         await req.app.get('io').of('/room').emit('removeRoom', req.params.id);
         const io = req.app.get('io');
         io.of('/chat').emit('reload');
-        await Room.remove({ _id: req.params.id });
-        await Chat.remove({ room: req.params.id });
+        await Room.deleteOne({ _id: req.params.id });
+        await Chat.deleteOne({ room: req.params.id });
+        await Flag.deleteOne({ room: req.params.id });
         res.redirect('/')
       } catch (error) {
         console.error(error);
@@ -361,15 +372,15 @@ app.route('/room/:id')
 
 app.post('/room/:id/clearchat', async (req, res, next) => {
   try {
+    const room = await Room.findOne({ _id: req.params.id });
     if(room.owner === req.session.username) {
       await Chat.deleteMany({
         room: req.params.id
       })      
     } else {
-      await User.findOneAndUpdate({
-        username: req.session.username
-      }, {
-        [req.params.id]: Date.now
+      await Flag.create({
+        username: req.session.username,
+        room: req.params.id
       })
     }
     res.send('ok')

@@ -3,13 +3,14 @@
 <h1>{{title}}</h1>
 <div align="right"> <a href="/" type="button" id="exit-btn">방 나가기</a>
 {% if user === room.owner and title !== 'Direct Message' %}
-  <form action="/room/{{room._id}}" id="removeroom">
+  <form id="removeroom">
     <button type="submit">방 제거</button>
   </form>
-  <form id="removechat">
+{% endif %}  
+  <form action="/room/{{room._id}}/clearchat" method="post" id="removechat">
+    <input type='text' name='friend' value='{{room._id}}' style='display: none;'>
     <button type="submit">채팅 내역 삭제</button>
   </form>
-{% endif %}
 </div>
 <fieldset>
   <legend>채팅 내용</legend>
@@ -158,10 +159,5 @@
     e.preventDefault();
     axios.delete('/room/{{room._id}}');
   });
-
-  document.querySelector('#removechat').addEventListener('submit', (e) => {
-    e.preventDefault();
-    axios.post('/room/{{room._id}}/clearchat');
-  })
 </script>
 {% endblock %}
