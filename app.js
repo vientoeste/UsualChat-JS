@@ -155,6 +155,22 @@ app.route('/friend/:id')
     })
     res.redirect('/')
   })
+  .delete(async (req, res) => {
+    await Friend.find({
+      _id: req.params.id
+    }).then(async (items) => {
+      console.log(items[0])
+      await Room.deleteMany({
+        _id: items[0].dm
+      })   
+      await Chat.deleteMany({
+        room: items[0].dm
+      })
+      await Flag.deleteMany({
+        room: items[0].dm
+      })
+    })
+  })
 
 app.post('/friend/:id/deletereq', async (req, res) => {
   await Friend.findByIdAndDelete({
@@ -190,6 +206,13 @@ app.post('/friend/:id/delete', async (req, res, next) => {
 })
 
 app.get('/unregister', async (req, res) => {
+  await Friend.deleteMany({
+    $or: [{
+      sender: req.session.username,
+    }, {
+      receiver: req.session.username
+    }]
+  })
   await User.remove({ username: req.session.username });
   res.redirect('/login')
 })
@@ -359,9 +382,9 @@ app.route('/room/:id')
         await req.app.get('io').of('/room').emit('removeRoom', req.params.id);
         const io = req.app.get('io');
         io.of('/chat').emit('reload');
-        await Room.deleteOne({ _id: req.params.id });
-        await Chat.deleteOne({ room: req.params.id });
-        await Flag.deleteOne({ room: req.params.id });
+        await Room.removeMany({ _id: req.params.id });
+        await Chat.removeMany({ room: req.params.id });
+        await Flag.removeMany({ room: req.params.id });
         res.redirect('/')
       } catch (error) {
         console.error(error);
@@ -372,7 +395,7 @@ app.route('/room/:id')
 
 app.post('/room/:id/clearchat', async (req, res, next) => {
   try {
-    const room = await Room.findOne({ _id: req.params.id });
+    const room = await Room.findById({ _id: req.params.id });
     if(room.owner === req.session.username) {
       await Chat.deleteMany({
         room: req.params.id
@@ -403,7 +426,10 @@ app.route('/room/:id/chat').post(async (req, res, next) => {
     console.error(error);
     next(error);
   }
-});
+})
+.delete(async (req, res, next) => {
+  
+})
 
 try {
   fs.readdirSync('uploads');

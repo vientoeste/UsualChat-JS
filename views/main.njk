@@ -56,16 +56,19 @@
           {% endif %}</td>
         <td>
           <form action='/dm' method='post'>
-          <input type='text' name='friend' value={% if un === friend.receiver %}
-          '{{friend.sender}}'
-          {% else %}
-          '{{friend.receiver}}'
-          {% endif %} style='display: none;'>
+            <input type='text' name='friend' value=
+              {% if un === friend.receiver %}
+              '{{friend.sender}}'
+              {% else %}
+              '{{friend.receiver}}'
+              {% endif %} 
+              style='display: none;'>
             <button type='submit'>입장</button>
           </form>
         </td>
         <td>
-          <form action='/friend/{{friend._id}}/delete' method='post' id="delfriend">
+          <form id="delfriend">
+            <input type='text' name='id' value='{{friend._id}}' style='display: none;'>
             <button type='submit'>친구 삭제</button>
           </form>
         </td>
@@ -76,35 +79,36 @@
   <br>
   <input type="checkbox" id="friendBtn" style="position: fixed; left:-9999px"><label for="friendBtn" class="friendBtn" style="cursor:pointer"><b>친구 관리</b></label>
   <div class='friend'>
-친구 추가<br>
-<form action='/friend' method="post" id="addfriend" >
-<input type="text" size="15" id="friend" name="friend"><button type="submit">추가</button></form>
-<br>친구 요청
-  <table>
-    <thead> 
-      <tr>
-        <th>아이디</th>
-        <th>날짜</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for friend in friendreqs %}
-      <tr data-id="{{friend._id}}">
-        <td>{{friend.sender}}</td>
-        <td>{{friend.createdAt}}</td>
-        <td>
-          <form action="/friend/{{friend._id}}" method="post" id="accept">
-            <button type="submit">O</button>
-          </form>
-          <form action="/friend/{{friend._id}}/deletereq" method="post" id="reject">
-            <button type="submit">X</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
+    친구 추가<br>
+    <form action='/friend' method="post" id="addfriend" >
+      <input type="text" size="15" id="friend" name="friend"><button type="submit">추가</button>
+    </form>
+    <br>친구 요청
+    <table>
+      <thead> 
+        <tr>
+          <th>아이디</th>
+          <th>날짜</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for friend in friendreqs %}
+        <tr data-id="{{friend._id}}">
+          <td>{{friend.sender}}</td>
+          <td>{{friend.createdAt}}</td>
+          <td>
+            <form action="/friend/{{friend._id}}" method="post" id="accept">
+              <button type="submit">O</button>
+            </form>
+            <form action="/friend/{{friend._id}}/deletereq" method="post" id="reject">
+              <button type="submit">X</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
-    </div>
+  </div>
 </fieldset>
 <a href="/unregister" type="button">회원 탈퇴</button>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -174,7 +178,7 @@
   })
 
   document.querySelector("#delfriend").addEventListener('submit', e => {
-    alert('친구가 삭제되었습니다.')
+    axios.delete('/friend/{{friend._id}}/delete')
   })
   document.querySelector('#accept').addEventListener('submit', (e) => {
     alert('친구 요청을 수락했습니다.')
