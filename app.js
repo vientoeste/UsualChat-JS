@@ -86,9 +86,9 @@ app.route('/').get(async (req, res, next) => {
       const rooms = await Room.find({
         isDM: false
       });
-      const friendreqs = await Friend.find({ 
-        receiver: req.session.username, 
-        isAccepted: false 
+      const friendreqs = await Friend.find({
+        receiver: req.session.username,
+        isAccepted: false
       });
       const accfriends = await Friend.find({
         $or: [{
@@ -132,7 +132,7 @@ app.route('/friend')
       if(!friend) {
         res.redirect('/?error=존재하지 않는 유저입니다.')
       } else {
-        await Friend.create({ 
+        await Friend.create({
           sender: req.session.username, 
           receiver: req.body.friend 
         })
@@ -162,7 +162,7 @@ app.route('/friend/:id')
       console.log(items[0])
       await Room.deleteMany({
         _id: items[0].dm
-      })   
+      })
       await Chat.deleteMany({
         room: items[0].dm
       })
@@ -277,7 +277,7 @@ app.route('/dm')
     try {
       let dmroomid = 0;
       const dm = await Room.find({
-        isDM: true, 
+        isDM: true,
         $or: [{
           owner: req.session.username,
           target: req.body.friend,
@@ -293,7 +293,7 @@ app.route('/dm')
           return true;
         }
       })
-      const friend = await Friend.find({ 
+      const friend = await Friend.find({
         $or: [{
           sender: req.body.friend,
           receiver: req.session.username
@@ -378,13 +378,13 @@ app.route('/room/:id')
   .delete(async (req, res, next) => {
     let roomid = await Room.findById({ _id: req.params.id });
     if (roomid.owner === req.session.username) {
-      try {        
+      try {
         await req.app.get('io').of('/room').emit('removeRoom', req.params.id);
         const io = req.app.get('io');
         io.of('/chat').emit('reload');
-        await Room.removeMany({ _id: req.params.id });
-        await Chat.removeMany({ room: req.params.id });
-        await Flag.removeMany({ room: req.params.id });
+        await Room.deleteMany({ _id: req.params.id });
+        await Chat.deleteMany({ room: req.params.id });
+        await Flag.deleteMany({ room: req.params.id });
         res.redirect('/')
       } catch (error) {
         console.error(error);
@@ -399,7 +399,7 @@ app.post('/room/:id/clearchat', async (req, res, next) => {
     if(room.owner === req.session.username) {
       await Chat.deleteMany({
         room: req.params.id
-      })      
+      })
     } else {
       await Flag.create({
         username: req.session.username,
@@ -427,9 +427,9 @@ app.route('/room/:id/chat').post(async (req, res, next) => {
     next(error);
   }
 })
-.delete(async (req, res, next) => {
+// .delete(async (req, res, next) => {
   
-})
+// })
 
 try {
   fs.readdirSync('uploads');
@@ -491,7 +491,7 @@ app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = process.env.NODE_ENV !== 'production' ? err : {};
   res.status(err.status || 500);
-  res.render('error'); 
+  res.render('error');
 });
 
 const server = app.listen(app.get('port'), () => {
