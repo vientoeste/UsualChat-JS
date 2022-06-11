@@ -109,8 +109,11 @@
 - indent, space 조정
 - public domain 구축, 포트포워딩 설정 후 open 및 테스트 완료
 
-## 
+## 8825655
 - jwt 인증을 위한 임시 커밋
+
+##
+- /mobile/login - POST를 통해 jwt 토큰 발급
 ----------------------------------------
 
 # ref info

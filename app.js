@@ -100,41 +100,11 @@ app.route('/').get(async (req, res, next) => {
         isAccepted: true
       })
       res.render('main', { un, rooms, friendreqs, accfriends, title: 'UsualChat' });
-      // res.send(un + rooms + friendreqs + accfriends)
     } catch (error) {
       console.error(error);
       next(error);
     }
   }
-});
-
-app.route('/mobile').get(async (req, res, next) => {
-  // if (req.isUnauthenticated()) {
-  //   res.redirect('login');
-  // } else {
-    try {
-      const rooms = await Room.find({
-        isDM: false
-      });
-      const friendreqs = await Friend.find({
-        receiver: req.session.username,
-        isAccepted: false
-      });
-      const accfriends = await Friend.find({
-        $or: [{
-          sender: req.session.username
-        }, {
-          receiver: req.session.username
-        }],
-        isAccepted: true
-      })
-      res.send()
-      // res.send(un + rooms + friendreqs + accfriends)
-    } catch (error) {
-      console.error(error);
-      next(error);
-    }
-  // }
 });
 
 app.route('/register')
@@ -149,9 +119,6 @@ app.route('/register')
         } else {
           passport.authenticate('local')(req, res, () => {
             req.session.username = req.body.username;
-            // const token = jwt.sign({
-            //   id: user.id, name: req.body.username, 
-            // })
             res.redirect('/');
           });
         }
@@ -258,6 +225,38 @@ app.get('/unregister', async (req, res) => {
   })
   await User.remove({ username: req.session.username });
   res.redirect('/login')
+})
+
+app.route('/json').post((req, res) => {
+  const json = 
+`{
+    "rooms": ["r1", "r2", "r3", "r4"], 
+    "friendreqs": ["fr1", "fr2", "fr3", "fr4"], 
+    "accfriends": ["f1", "f2", "f3"]
+}`
+  res.json(JSON.parse(json));
+})
+
+app.route('/mobile/login').post(async (req, res, next) => {
+  try {
+    passport.authenticate('local', (error, user, info) => {
+      req.login(user, (err) => {
+        if(err) {
+          console.log(err)
+          next(err)
+        } else {
+          const token = jwt.sign({
+            id: user.id, name: user.name, auth: user.auth
+          }, process.env.COOKIE_SECRET)
+          req.session.username = user.name;
+          res.json({ token });
+        }
+      })
+    })(req, res)
+  } catch (e) {
+    console.log(e)
+    next(e)
+  }
 })
 
 app.route('/login')
