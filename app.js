@@ -12,6 +12,7 @@ const fs = require('fs');
 const multer = require('multer');
 const resTime = require('response-time');
 const chalk = require('chalk');
+const jwt = require('jsonwebtoken')
 
 dotenv.config();
 
@@ -99,11 +100,41 @@ app.route('/').get(async (req, res, next) => {
         isAccepted: true
       })
       res.render('main', { un, rooms, friendreqs, accfriends, title: 'UsualChat' });
+      // res.send(un + rooms + friendreqs + accfriends)
     } catch (error) {
       console.error(error);
       next(error);
     }
   }
+});
+
+app.route('/mobile').get(async (req, res, next) => {
+  // if (req.isUnauthenticated()) {
+  //   res.redirect('login');
+  // } else {
+    try {
+      const rooms = await Room.find({
+        isDM: false
+      });
+      const friendreqs = await Friend.find({
+        receiver: req.session.username,
+        isAccepted: false
+      });
+      const accfriends = await Friend.find({
+        $or: [{
+          sender: req.session.username
+        }, {
+          receiver: req.session.username
+        }],
+        isAccepted: true
+      })
+      res.send()
+      // res.send(un + rooms + friendreqs + accfriends)
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  // }
 });
 
 app.route('/register')
@@ -118,6 +149,9 @@ app.route('/register')
         } else {
           passport.authenticate('local')(req, res, () => {
             req.session.username = req.body.username;
+            // const token = jwt.sign({
+            //   id: user.id, name: req.body.username, 
+            // })
             res.redirect('/');
           });
         }
@@ -142,6 +176,10 @@ app.route('/friend')
       console.error(error);
       next(error);
     }})
+  .delete(async (req, res, next) => {
+    console.log(req.url)
+    res.send('ok')
+  })
 
 app.route('/friend/:id')
   .get((req, res) => {
@@ -156,6 +194,7 @@ app.route('/friend/:id')
     res.redirect('/')
   })
   .delete(async (req, res) => {
+    console.log(req.url)
     await Friend.find({
       _id: req.params.id
     }).then(async (items) => {
@@ -170,6 +209,10 @@ app.route('/friend/:id')
         room: items[0].dm
       })
     })
+    Friend.findByIdAndDelete({
+      _id: req.params.id
+    })
+    res.send('ok')
   })
 
 app.post('/friend/:id/deletereq', async (req, res) => {
@@ -219,7 +262,11 @@ app.get('/unregister', async (req, res) => {
 
 app.route('/login')
   .get((req, res) => {
-    res.render('login');
+    if (req.isAuthenticated()) {
+      res.redirect('/');
+    } else {
+    res.render('login');      
+    }
   })
   .post((req, res) => {
     const user = new User({

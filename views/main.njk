@@ -67,8 +67,8 @@
           </form>
         </td>
         <td>
-          <form id="delfriend">
-            <input type='text' name='id' value='{{friend._id}}' style='display: none;'>
+          <form id="delfriend" action="/friend/{{friend._id}}/delete" method='post'>
+            {# <input type='text' name='id' value='{{friend._id}}' style='display: none;'> #}
             <button type='submit'>친구 삭제</button>
           </form>
         </td>
@@ -178,7 +178,13 @@
   })
 
   document.querySelector("#delfriend").addEventListener('submit', e => {
-    axios.delete('/friend/{{friend._id}}/delete')
+    axios({
+      url: 'http://usualchat.ga:3001/friend/',
+      method: 'delete',
+      data: {
+        friendid: this.friendid.value
+      }
+    })
   })
   document.querySelector('#accept').addEventListener('submit', (e) => {
     alert('친구 요청을 수락했습니다.')

@@ -104,11 +104,13 @@
 - 친구 삭제 시 Flag, Chat, Room(dm) 모두 제거
 - 회원 탈퇴 시 친구 제거
 
-## 
+## bf3e84b
 - nodemon 버전 업
 - indent, space 조정
 - public domain 구축, 포트포워딩 설정 후 open 및 테스트 완료
 
+## 
+- jwt 인증을 위한 임시 커밋
 ----------------------------------------
 
 # ref info
