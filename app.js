@@ -13,6 +13,7 @@ const multer = require('multer');
 const resTime = require('response-time');
 const chalk = require('chalk');
 const jwt = require('jsonwebtoken')
+const { ExtractJwt, Strategy: JWTStrategy } = require('passport-jwt');
 
 dotenv.config();
 
@@ -75,8 +76,63 @@ const User = new mongoose.model('User', userSchema);
 
 passport.use(User.createStrategy());
 
+const JWTConfig = {
+  jwtFromRequest: ExtractJwt.fromHeader('authorization'),
+  secretOrKey: process.env.COOKIE_SECRET,
+};
+
+const JWTVerify = async (jwtPayload, cb) => {
+  try {
+    const user = await User.findById({ _id: jwtPayload.id })
+    if (user) {
+      cb(null, user);
+      return;
+    }
+    cb(null, false, { reason: '인증 실패' });
+  } catch (error) {
+    console.error(error);
+    cb(error);
+  }
+};
+
+passport.use('jwt', new JWTStrategy(JWTConfig, JWTVerify))
+
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+app.route('/mobile').get(passport.authenticate('jwt'), async (req, res, next) => {
+  try {
+    const un = req.user.username;
+    const rooms = await Room.find({
+      isDM: false
+    }).select('_id title');
+    const friendreqs = await Friend.find({
+      receiver: un,
+      isAccepted: false
+    }).select('-_id sender');
+    const accfriends = await Friend.find({
+      $or: [{
+        sender: un
+      }, {
+        receiver: un
+      }],
+      isAccepted: true
+    }).select('-_id sender receiver');
+    let fReq = new Array(friendreqs.length)
+    for(let i = 0;i<friendreqs.length;i++) {
+      fReq[i] = friendreqs[i].sender
+    }
+    let fr = []
+    for(let i = 0; i<accfriends.length; i++) {
+      if(accfriends[i].sender === un) fr[i] = accfriends[i].receiver
+      else if(accfriends[i].receiver === un) fr[i] = accfriends[i].sender
+    }
+    res.json(JSON.stringify({ username: un, rooms: rooms, fReqs: fReq, fr: fr }));
+  } catch (e) {
+    console.log(e)
+    next(e)
+  }
+})
 
 app.route('/').get(async (req, res, next) => {
   if (req.isUnauthenticated()) {
@@ -88,14 +144,14 @@ app.route('/').get(async (req, res, next) => {
         isDM: false
       });
       const friendreqs = await Friend.find({
-        receiver: req.session.username,
+        receiver: un,
         isAccepted: false
       });
       const accfriends = await Friend.find({
         $or: [{
-          sender: req.session.username
+          sender: un
         }, {
-          receiver: req.session.username
+          receiver: un
         }],
         isAccepted: true
       })
@@ -237,7 +293,11 @@ app.route('/json').post((req, res) => {
   res.json(JSON.parse(json));
 })
 
-app.route('/mobile/login').post(async (req, res, next) => {
+app.route('/mobile/login')
+.get((req, res, next) => {
+  res.render('login', { strategy: 'jwt' })
+})
+.post(/*passport.authenticate('local'),*/ async (req, res, next) => {
   try {
     passport.authenticate('local', (error, user, info) => {
       req.login(user, (err) => {
@@ -248,6 +308,8 @@ app.route('/mobile/login').post(async (req, res, next) => {
           const token = jwt.sign({
             id: user.id, name: user.name, auth: user.auth
           }, process.env.COOKIE_SECRET)
+          const decoded = jwt.verify(token, process.env.COOKIE_SECRET)
+          console.log(decoded)
           req.session.username = user.name;
           res.json({ token });
         }
@@ -264,7 +326,7 @@ app.route('/login')
     if (req.isAuthenticated()) {
       res.redirect('/');
     } else {
-    res.render('login');      
+    res.render('login', { strategy: 'default' });      
     }
   })
   .post((req, res) => {

@@ -2,11 +2,19 @@
 
 {% block content %}
 <div class='login'>
-	<form action="/login" method="post">
+	{% if strategy === 'default' %}
+		<form action="/login" method="post">
+	{% elif strategy === 'jwt' %}
+		<form action="/mobile/login" method="post">
+	{% endif %}
 		<div class="container">
 			<div class="profile-wrap">
 				<div class="profile">
-					<form id="login-form" action="/login" method="post">
+					{% if strategy === 'default' %}
+						<form id="login-form" action="/login" method="post">
+					{% elif strategy === 'jwt' %}
+						<form id="login-form" action="/mobile/login" method="post">
+					{% endif %}
 						<div class="input-group">
 							<label for="username">ID</label>
 							<input id="username" type="username" name="username" required autofocus>
