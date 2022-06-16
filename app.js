@@ -127,7 +127,7 @@ app.route('/mobile').get(passport.authenticate('jwt'), async (req, res, next) =>
       if(accfriends[i].sender === un) fr[i] = accfriends[i].receiver
       else if(accfriends[i].receiver === un) fr[i] = accfriends[i].sender
     }
-    res.json(JSON.stringify({ username: un, rooms: rooms, fReqs: fReq, fr: fr }));
+    res.json(JSON.stringify({ username: un, rooms: rooms, fReqs: friendreqs, fr: accfriends }));
   } catch (e) {
     console.log(e)
     next(e)
@@ -139,7 +139,7 @@ app.route('/').get(async (req, res, next) => {
     res.redirect('login');
   } else {
     try {
-      const un = req.session.username;
+      const un = !req.session.username? req.user.username: req.session.username;
       const rooms = await Room.find({
         isDM: false
       });
@@ -280,24 +280,15 @@ app.get('/unregister', async (req, res) => {
     }]
   })
   await User.remove({ username: req.session.username });
+  await Room.remove({ owner: req.session.username });
   res.redirect('/login')
-})
-
-app.route('/json').post((req, res) => {
-  const json = 
-`{
-    "rooms": ["r1", "r2", "r3", "r4"], 
-    "friendreqs": ["fr1", "fr2", "fr3", "fr4"], 
-    "accfriends": ["f1", "f2", "f3"]
-}`
-  res.json(JSON.parse(json));
 })
 
 app.route('/mobile/login')
 .get((req, res, next) => {
   res.render('login', { strategy: 'jwt' })
 })
-.post(/*passport.authenticate('local'),*/ async (req, res, next) => {
+.post(async (req, res, next) => {
   try {
     passport.authenticate('local', (error, user, info) => {
       req.login(user, (err) => {
@@ -535,9 +526,6 @@ app.route('/room/:id/chat').post(async (req, res, next) => {
     next(error);
   }
 })
-// .delete(async (req, res, next) => {
-  
-// })
 
 try {
   fs.readdirSync('uploads');
