@@ -114,7 +114,7 @@
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io.connect('http://usualchat.ga:3001/room', {
+  const socket = io.connect('http://121.171.183.86:3001/room', {
     path: '/socket.io',
   });
 
@@ -179,7 +179,7 @@
 
   document.querySelector("#delfriend").addEventListener('submit', e => {
     axios({
-      url: 'http://usualchat.ga:3001/friend/',
+      url: 'http://121.171.183.86:3001/friend/',
       method: 'delete',
       data: {
         friendid: this.friendid.value

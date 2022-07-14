@@ -23,13 +23,14 @@ module.exports = (server, app, sessionMiddleware) => {
     console.log('chat 네임스페이스에 접속');
     const req = socket.request;
     const { headers: { referer } } = req;
+    console.log(req.rawHeaders[15]);
     const roomId = referer
       .split('/')[referer.split('/').length - 1]
       .replace(/\?.+/, '');
     socket.join(roomId);
     socket.to(roomId).emit('join', {
       user: 'system',
-      chat: `${req.session.username}님이 입장하셨습니다.`,
+      // chat: `${req.session.username}님이 입장하셨습니다.`,
     });
 
     socket.on('disconnect', () => {
@@ -37,7 +38,7 @@ module.exports = (server, app, sessionMiddleware) => {
       socket.leave(roomId);
       socket.to(roomId).emit('exit', {
         user: 'system',
-        chat: `${req.session.username}님이 퇴장하셨습니다.`,
+        // chat: `${req.session.username}님이 퇴장하셨습니다.`,
       });
     });
 

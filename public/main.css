@@ -21,7 +21,7 @@
   max-width: 300px;
 }
 #exit-btn { position: absolute; top: 20px; right: 20px; }
-#chat-list { height: 500px; overflow: auto; padding: 5px; }
+#chat-list { height: 500px; overflow: auto; padding: 5px; flex-direction: column-reverse; }
 #chat-form { text-align: right; }
 label[for='gif'], #chat, #chat-form [type='submit'] {
   display: inline-block;

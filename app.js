@@ -138,6 +138,7 @@ app.route('/').get(async (req, res, next) => {
   if (req.isUnauthenticated()) {
     res.redirect('login');
   } else {
+    console.log(req.session.username);
     try {
       const un = !req.session.username? req.user.username: req.session.username;
       const rooms = await Room.find({

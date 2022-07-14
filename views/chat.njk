@@ -14,7 +14,7 @@
 </div>
 <fieldset>
   <legend>채팅 내용</legend>
-  <div id="chat-list">
+  <div id="chat-list" style="flex-direction: column-reverse;">
     {% for chat in chats %} 
       {% if chat.user === user %}
       <div class="mine">
@@ -58,7 +58,7 @@
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io.connect('http://usualchat.ga:3001/chat', {
+  const socket = io.connect('http://121.171.183.86:3001/chat', {
     path: '/socket.io',
   });
 
@@ -109,6 +109,8 @@
       div.appendChild(file);
     }
     document.querySelector('#chat-list').appendChild(div);
+    const chatlist = document.querySelector('#chat-list');
+    chatlist.scrollTop = chatlist.scrollHeight;
   });
 
   document.querySelector('#chat-form').addEventListener('submit', (e) => {
