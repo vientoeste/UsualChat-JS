@@ -25,6 +25,10 @@ const roomSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  isAI: {
+    type: Boolean,
+    default: false,
+  },
   target: String,
 });
 

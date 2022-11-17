@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const nunjucks = require('nunjucks');
-const dotenv = require('dotenv');
+const dotenv = require('dotenv').config();
 const morgan = require('morgan');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
@@ -14,8 +14,7 @@ const resTime = require('response-time');
 const chalk = require('chalk');
 const jwt = require('jsonwebtoken')
 const { ExtractJwt, Strategy: JWTStrategy } = require('passport-jwt');
-
-dotenv.config();
+const { OpenAIApi, Configuration } = require('openai');
 
 const webSocket = require('./socket');
 const connect = require('./schemas');
@@ -352,17 +351,30 @@ app.route('/room')
   })
   .post(async (req, res, next) => {
     try {
-      console.log(!!req.body.friend)
+      const isAI = req.body.isAI;
       if(!!req.body.friend) {
         req.body.title=req.body.friend;
       }
-      const newRoom = await Room.create({
-        title: req.body.title,
-        max: req.body.max,
-        owner: req.session.username,
-        password: req.body.password,
-        isDM: false,
-      });
+      let newRoom;
+      if (isAI) {
+        newRoom = await Room.create({
+          title: 'chat with ai',
+          max: 2,
+          owner: req.session.username,
+          password: null,
+          isDM: false,
+          isAI: true,
+        });
+      } else {
+        newRoom = await Room.create({
+          title: req.body.title,
+          max: req.body.max,
+          owner: req.session.username,
+          password: req.body.password,
+          isDM: false,
+          isAI: false,
+        });
+      }
       const io = req.app.get('io');
       io.of('/room').emit('newRoom', newRoom);
       res.redirect(`/room/${newRoom._id}?password=${req.body.password}`);
@@ -436,6 +448,10 @@ app.route('/room/:id')
       if (!room) {
         return res.redirect('/');
       }
+      console.log(room.isAI, req.user.username, room.owner)
+      if (room.isAI && (req.user.username !== room.owner)) {
+        return res.redirect('/?error=타 유저의 AI 채팅에는 접근할 수 없습니다.');
+      }
       if (room.password && room.password !== req.query.password) {
         return res.redirect('/?error=비밀번호가 틀렸습니다.');
       }
@@ -463,6 +479,15 @@ app.route('/room/:id')
         chats = await Chat.find({ room: room._id }).sort('createdAt');
       } else {
         chats = await Chat.find({ room: room._id, createdAt: {$gt: flag.deletedAt} }).sort('createdAt')
+      }
+      if (room.isAI) {
+        return res.render('chat', {
+          room,
+          title: 'chat with ai',
+          chats,
+          user: req.session.username,
+          isAI: true,
+        });
       }
       return res.render('chat', {
         room,
@@ -513,6 +538,11 @@ app.post('/room/:id/clearchat', async (req, res, next) => {
   }
 })
 
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
+
 app.route('/room/:id/chat').post(async (req, res, next) => {
   try {
     const chat = await Chat.create({
@@ -527,7 +557,30 @@ app.route('/room/:id/chat').post(async (req, res, next) => {
     next(error);
   }
 })
+app.route('/room/:id/aichat').post(async (req, res, next) => {
 
+      const chat = await Chat.create({
+        room: req.params.id,
+        user: req.session.username,
+        chat: req.body.chat,
+      });
+      const response = await openai.createCompletion({
+        model: "text-davinci-002",
+        prompt: chat.chat,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      });
+      console.log(response.data.choices[0].text)
+      const ai = await Chat.create({
+        room: req.params.id,
+        user: 'ai',
+        chat: response.data.choices[0].text,
+      })
+      req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
+      req.app.get('io').of('/chat').to(req.params.id).emit('chat', ai);
+      
+      res.send('ok');
+})
 try {
   fs.readdirSync('uploads');
 } catch (err) {

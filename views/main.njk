@@ -2,7 +2,10 @@
 
 {% block content %}
 <h1>UsualChat 채팅방</h1>
-<h2><button type="button" onclick="location.href='/logout'" style="position:relative"> 로그아웃 </button></h2>
+<h2>
+  <button type="button" onclick="location.href='/logout'" style="position:relative"> 로그아웃 </button>
+</h2>
+
 <fieldset style="float: left">
   <legend>채팅방</legend>
   <table>
@@ -114,7 +117,7 @@
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io.connect('http://121.171.183.86:3001/room', {
+  const socket = io.connect('http://localhost:3001/room', {
     path: '/socket.io',
   });
 
@@ -179,7 +182,7 @@
 
   document.querySelector("#delfriend")?.addEventListener('submit', e => {
     axios({
-      url: 'http://121.171.183.86:3001/friend/',
+      url: 'http://localhost:3001/friend/',
       method: 'delete',
       data: {
         friendid: this.friendid.value

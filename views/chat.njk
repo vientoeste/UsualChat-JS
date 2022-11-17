@@ -48,17 +48,24 @@
     {% endfor %}
   </div>
 </fieldset>
+{% if isAI === 'true' or isAI === true %}
+<form action="/aichat" id="chat-form-1" method="post" enctype="multipart/form-data">
+  <input type="text" id="chat" name="chat">
+  <button type="submit">전송</button>
+</form>
+{% else %}
 <form action="/chat" id="chat-form" method="post" enctype="multipart/form-data">
   <label for="img">파일 업로드</label>
   <input type="file" id="img" name="img">
   <input type="text" id="chat" name="chat">
   <button type="submit">전송</button>
 </form>
+{% endif%}
 
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io.connect('http://121.171.183.86:3001/chat', {
+  const socket = io.connect('http://localhost:3001/chat', {
     path: '/socket.io',
   });
 
@@ -112,7 +119,21 @@
     const chatlist = document.querySelector('#chat-list');
     chatlist.scrollTop = chatlist.scrollHeight;
   });
-
+  document.querySelector('#chat-form-1')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (e.target.chat.value) {
+      axios
+        .post('/room/{{room._id}}/aichat', {
+          chat: this.chat.value,
+        })
+        .then(() => {
+          e.target.chat.value = '';
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  });
   document.querySelector('#chat-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
     if (e.target.chat.value) {
