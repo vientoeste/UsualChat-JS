@@ -68,7 +68,7 @@
     const chat = document.createElement('div');
     div.textContent = data.chat;
     div.appendChild(chat);
-    document.querySelector('#chat-list').appendChild(div);
+    document.querySelector('#chat-list')?.appendChild(div);
   });
 
   socket.on('reload', () => {
@@ -81,7 +81,7 @@
     const chat = document.createElement('div');
     div.textContent = data.chat;
     div.appendChild(chat);
-    document.querySelector('#chat-list').appendChild(div);
+    document.querySelector('#chat-list')?.appendChild(div);
   });
 
   socket.on('chat', (data) => {
@@ -108,12 +108,12 @@
       file.src = '/file/' + data.file;
       div.appendChild(file);
     }
-    document.querySelector('#chat-list').appendChild(div);
+    document.querySelector('#chat-list')?.appendChild(div);
     const chatlist = document.querySelector('#chat-list');
     chatlist.scrollTop = chatlist.scrollHeight;
   });
 
-  document.querySelector('#chat-form').addEventListener('submit', (e) => {
+  document.querySelector('#chat-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
     if (e.target.chat.value) {
       axios
@@ -129,7 +129,7 @@
     }
   });
 
-  document.querySelector('#img').addEventListener('change', (e) => {
+  document.querySelector('#img')?.addEventListener('change', (e) => {
     console.log(e.target.files);
     const formData = new FormData();
     formData.append('img', e.target.files[0]);
